@@ -1,17 +1,13 @@
-//
-//  MindWatchApp.swift
-//  MindWatch Watch App
-//
-//  Created by Alejandro Grimaldo on 19/04/26.
-//
-
 import SwiftUI
 
 @main
-struct MindWatch_Watch_AppApp: App {
+struct MindWatchApp: App {
+    @StateObject private var store = WatchStore()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            WatchHomeView()
+                .environmentObject(store)
         }
     }
 }

@@ -6,8 +6,39 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DA4791CD2F95935C004DDC2F /* MindWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DA4791C32F95935A004DDC2F /* MindWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DA4791DF2F959472004DDC2F /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA4791DD2F95945E004DDC2F /* WatchConnectivity.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DA4791CB2F95935C004DDC2F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA4791712F958290004DDC2F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DA4791C22F95935A004DDC2F;
+			remoteInfo = "MindWatch Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DA4791D12F95935C004DDC2F /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				DA4791CD2F95935C004DDC2F /* MindWatch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		DA4791792F958290004DDC2F /* Mind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mind.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA4791C32F95935A004DDC2F /* MindWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MindWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA4791DD2F95945E004DDC2F /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +47,23 @@
 			path = Mind;
 			sourceTree = "<group>";
 		};
+		DA4791C42F95935A004DDC2F /* MindWatch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "MindWatch Watch App";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DA4791762F958290004DDC2F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA4791DF2F959472004DDC2F /* WatchConnectivity.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA4791C02F95935A004DDC2F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +77,8 @@
 			isa = PBXGroup;
 			children = (
 				DA47917B2F958290004DDC2F /* Mind */,
+				DA4791C42F95935A004DDC2F /* MindWatch Watch App */,
+				DA4791DC2F95945E004DDC2F /* Frameworks */,
 				DA47917A2F958290004DDC2F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +87,17 @@
 			isa = PBXGroup;
 			children = (
 				DA4791792F958290004DDC2F /* Mind.app */,
+				DA4791C32F95935A004DDC2F /* MindWatch Watch App.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DA4791DC2F95945E004DDC2F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DA4791DD2F95945E004DDC2F /* WatchConnectivity.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +110,12 @@
 				DA4791752F958290004DDC2F /* Sources */,
 				DA4791762F958290004DDC2F /* Frameworks */,
 				DA4791772F958290004DDC2F /* Resources */,
+				DA4791D12F95935C004DDC2F /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DA4791CC2F95935C004DDC2F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DA47917B2F958290004DDC2F /* Mind */,
@@ -68,6 +125,28 @@
 			);
 			productName = Mind;
 			productReference = DA4791792F958290004DDC2F /* Mind.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DA4791C22F95935A004DDC2F /* MindWatch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA4791CE2F95935C004DDC2F /* Build configuration list for PBXNativeTarget "MindWatch Watch App" */;
+			buildPhases = (
+				DA4791BF2F95935A004DDC2F /* Sources */,
+				DA4791C02F95935A004DDC2F /* Frameworks */,
+				DA4791C12F95935A004DDC2F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DA4791C42F95935A004DDC2F /* MindWatch Watch App */,
+			);
+			name = "MindWatch Watch App";
+			packageProductDependencies = (
+			);
+			productName = "MindWatch Watch App";
+			productReference = DA4791C32F95935A004DDC2F /* MindWatch Watch App.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -81,6 +160,9 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					DA4791782F958290004DDC2F = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					DA4791C22F95935A004DDC2F = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
 				};
@@ -100,12 +182,20 @@
 			projectRoot = "";
 			targets = (
 				DA4791782F958290004DDC2F /* Mind */,
+				DA4791C22F95935A004DDC2F /* MindWatch Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		DA4791772F958290004DDC2F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA4791C12F95935A004DDC2F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +212,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA4791BF2F95935A004DDC2F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DA4791CC2F95935C004DDC2F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DA4791C22F95935A004DDC2F /* MindWatch Watch App */;
+			targetProxy = DA4791CB2F95935C004DDC2F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		DA4791822F958291004DDC2F /* Debug */ = {
@@ -310,6 +415,76 @@
 			};
 			name = Release;
 		};
+		DA4791CF2F95935C004DDC2F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G86866SLK4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = MindWatch;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Mind lee tu frecuencia cardíaca y HRV para estimar tu nivel de estrés";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Mind no escribe datos de salud";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = AlexGrim.Mind;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = AlexGrim.Mind.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		DA4791D02F95935C004DDC2F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G86866SLK4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = MindWatch;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Mind lee tu frecuencia cardíaca y HRV para estimar tu nivel de estrés";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Mind no escribe datos de salud";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = AlexGrim.Mind;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = AlexGrim.Mind.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -327,6 +502,15 @@
 			buildConfigurations = (
 				DA4791852F958291004DDC2F /* Debug */,
 				DA4791862F958291004DDC2F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA4791CE2F95935C004DDC2F /* Build configuration list for PBXNativeTarget "MindWatch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA4791CF2F95935C004DDC2F /* Debug */,
+				DA4791D02F95935C004DDC2F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
