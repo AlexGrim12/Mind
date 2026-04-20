@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Mind
+//  MindWatch Watch App
 //
 //  Created by Alejandro Grimaldo on 19/04/26.
 //
