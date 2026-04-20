@@ -13,7 +13,7 @@ struct SafetyPlanView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack { Theme.background.ignoresSafeArea()
+            ZStack { Theme.ambientBackground
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
                         BreathingHero()

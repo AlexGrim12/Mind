@@ -15,89 +15,90 @@ struct MoodCheckinView: View {
 
     var body: some View {
         ZStack {
-            AnimatedGradientBackground(score: score)
+            Theme.scrollPaper.ignoresSafeArea()
+            
+            WashiNoise()
+                .blendMode(.multiply)
+                .opacity(0.12)
                 .ignoresSafeArea()
-                .animation(.easeInOut(duration: 0.5), value: score)
 
             VStack(spacing: 0) {
-                // Handle + header
-                VStack(spacing: 10) {
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(.white.opacity(0.4))
-                        .frame(width: 36, height: 4)
-                        .padding(.top, 12)
-
+                VStack(spacing: 0) {
+                    // Header
                     HStack {
                         Button("Cancelar") { dismiss() }
-                            .font(.subheadline).foregroundStyle(.white.opacity(0.8))
+                            .font(.subheadline).foregroundStyle(Theme.sumiSoft)
                         Spacer()
                         Text("Check-in")
-                            .font(.headline.bold()).foregroundStyle(.white)
+                            .font(.headline.bold()).foregroundStyle(Theme.sumi)
                         Spacer()
                         Text("Cancelar").font(.subheadline).opacity(0)
                     }
                     .padding(.horizontal, 24)
-                }
+                    .padding(.top, 10)
 
-                // Progress dots animados
-                HStack(spacing: 8) {
-                    ForEach(0..<3) { i in
-                        Capsule()
-                            .fill(.white.opacity(i <= step ? 1.0 : 0.3))
-                            .frame(width: i == step ? 28 : 8, height: 8)
-                            .animation(.springy, value: step)
+                    // Progress dots
+                    HStack(spacing: 8) {
+                        ForEach(0..<3) { i in
+                            Capsule()
+                                .fill(Theme.sumi.opacity(i <= step ? 0.8 : 0.2))
+                                .frame(width: i == step ? 28 : 8, height: 8)
+                                .animation(.springy, value: step)
+                        }
                     }
-                }
-                .padding(.top, 16)
+                    .padding(.top, 16)
 
-                // Contenido por step
-                ZStack {
-                    if step == 0 {
-                        ScoreStep(score: $score)
-                            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                                    removal: .move(edge: .leading).combined(with: .opacity)))
-                    } else if step == 1 {
-                        ContextStep(energy: $energy, selectedContext: $selectedContext,
-                                    selectedCompany: $selectedCompany, selectedActivity: $selectedActivity)
-                            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                                    removal: .move(edge: .leading).combined(with: .opacity)))
-                    } else {
-                        ConfirmStep(score: score, energy: energy, context: selectedContext,
-                                    company: selectedCompany, activity: selectedActivity,
-                                    saved: savedSuccessfully)
-                            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                                    removal: .move(edge: .leading).combined(with: .opacity)))
-                    }
-                }
-                .animation(.springy, value: step)
-
-                // Botones
-                VStack(spacing: 12) {
-                    Button {
-                        if step < 2 {
-                            Haptics.impact(.light)
-                            withAnimation(.springy) { step += 1 }
+                    // Contenido
+                    ZStack {
+                        if step == 0 {
+                            ScoreStep(score: $score)
+                                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
+                                                        removal: .move(edge: .leading).combined(with: .opacity)))
+                        } else if step == 1 {
+                            ContextStep(energy: $energy, selectedContext: $selectedContext,
+                                        selectedCompany: $selectedCompany, selectedActivity: $selectedActivity)
+                                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
+                                                        removal: .move(edge: .leading).combined(with: .opacity)))
                         } else {
-                            save()
+                            ConfirmStep(score: score, energy: energy, context: selectedContext,
+                                        company: selectedCompany, activity: selectedActivity,
+                                        saved: savedSuccessfully)
+                                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
+                                                        removal: .move(edge: .leading).combined(with: .opacity)))
                         }
-                    } label: {
-                        Text(step == 0 ? "Siguiente" : step == 1 ? "Ver resumen" : "Guardar")
-                            .primaryButton()
                     }
-                    .pressEffect()
-                    .padding(.horizontal, 24)
+                    .animation(.springy, value: step)
 
-                    if step > 0 {
-                        Button("Atrás") {
-                            Haptics.impact(.light)
-                            withAnimation(.springy) { step -= 1 }
+                    Spacer()
+
+                    // Botones
+                    VStack(spacing: 12) {
+                        Button {
+                            if step < 2 {
+                                Haptics.impact(.light)
+                                withAnimation(.springy) { step += 1 }
+                            } else {
+                                save()
+                            }
+                        } label: {
+                            Text(step == 0 ? "Siguiente" : step == 1 ? "Ver resumen" : "Guardar")
+                                .primaryButton()
                         }
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .transition(.opacity)
+                        .pressEffect()
+                        .padding(.horizontal, 24)
+
+                        if step > 0 {
+                            Button("Atrás") {
+                                Haptics.impact(.light)
+                                withAnimation(.springy) { step -= 1 }
+                            }
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.sumiSoft)
+                            .transition(.opacity)
+                        }
                     }
+                    .padding(.bottom, 20)
                 }
-                .padding(.bottom, 40)
             }
         }
     }
@@ -130,7 +131,7 @@ struct ScoreStep: View {
                     .scaleEffect(appeared ? 1 : 0.4)
                     .animation(.bouncy.delay(0.1), value: appeared)
                     .contentTransition(.numericText())
-                    .animation(.springy, value: score)
+                    .animation(.spring(duration: 0.6, bounce: 0.5), value: score)
 
                 Text(score.moodLabel)
                     .font(.title.bold())

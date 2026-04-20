@@ -30,7 +30,7 @@ struct JournalView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                Theme.background.ignoresSafeArea()
+                Theme.ambientBackground
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
@@ -146,7 +146,7 @@ struct JournalView: View {
                         .disabled(isSummarizing || isEmpty)
                         .padding(.horizontal, 20)
                         .padding(.bottom, 24)
-                        .background(Theme.background)
+                        .background(.ultraThinMaterial)
                     }
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
@@ -297,6 +297,7 @@ struct WritingProgressBar: View {
         if clampedProgress >= 0.5 { return "Sigue, vas muy bien" }
         return "Meta: \(goal) palabras"
     }
+
 }
 
 // MARK: — AI Summary card

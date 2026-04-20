@@ -5,6 +5,9 @@ struct ClinicianView: View {
     @AppStorage("sharesMood")           private var sharesMood = true
     @AppStorage("sharesQuestionnaires") private var sharesQuestionnaires = true
     @AppStorage("sharesTopics")         private var sharesTopics = true
+    @AppStorage("sharesBiometrics")     private var sharesBiometrics = true
+    @AppStorage("sharesSleep")          private var sharesSleep = true
+    @StateObject private var health = HealthKitService.shared
     @State private var showDashboard = false
     @State private var showUnlinkAlert = false
 
@@ -18,7 +21,7 @@ struct ClinicianView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack { Theme.appBackground.ignoresSafeArea()
+            ZStack { Theme.ambientBackground
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
                         // Perfil animado
@@ -33,7 +36,9 @@ struct ClinicianView: View {
                         SharingControlCard(
                             sharesMood: $sharesMood,
                             sharesQuestionnaires: $sharesQuestionnaires,
-                            sharesTopics: $sharesTopics
+                            sharesTopics: $sharesTopics,
+                            sharesBiometrics: $sharesBiometrics,
+                            sharesSleep: $sharesSleep
                         )
                         .staggered(1, base: 0)
 
@@ -41,7 +46,11 @@ struct ClinicianView: View {
                         ClinicalPreviewCard(
                             sharesMood: sharesMood,
                             sharesQuestionnaires: sharesQuestionnaires,
-                            sharesTopics: sharesTopics
+                            sharesTopics: sharesTopics,
+                            sharesBiometrics: sharesBiometrics,
+                            sharesSleep: sharesSleep,
+                            snapshot: health.todaySnapshot,
+                            sleep: health.lastNightSleep
                         )
                         .staggered(2, base: 0)
 
@@ -72,6 +81,7 @@ struct ClinicianView: View {
             }
             .navigationTitle("Mi psicólogo")
         }
+        .task { if health.todaySnapshot == nil { await health.fetchAll() } }
         .sheet(isPresented: $showDashboard) { ClinicianDashboardView() }
         .alert("¿Desvincular?", isPresented: $showUnlinkAlert) {
             Button("Cancelar", role: .cancel) { }
@@ -146,6 +156,8 @@ struct SharingControlCard: View {
     @Binding var sharesMood: Bool
     @Binding var sharesQuestionnaires: Bool
     @Binding var sharesTopics: Bool
+    @Binding var sharesBiometrics: Bool
+    @Binding var sharesSleep: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -168,6 +180,14 @@ struct SharingControlCard: View {
                 SharingRow(icon: "tag.fill", color: Theme.moodPurple,
                            title: "Temas del diario", subtitle: "Anonimizados, sin texto crudo",
                            isOn: $sharesTopics)
+                Divider().padding(.leading, 54)
+                SharingRow(icon: "heart.fill", color: .red,
+                           title: "Biométricos", subtitle: "FC, HRV, SpO₂ · sin datos crudos",
+                           isOn: $sharesBiometrics)
+                Divider().padding(.leading, 54)
+                SharingRow(icon: "moon.stars.fill", color: Theme.moodBlue,
+                           title: "Calidad del sueño", subtitle: "Horas y fases · no contenido",
+                           isOn: $sharesSleep)
             }
         }
         .cardStyle()
@@ -211,7 +231,15 @@ struct ClinicalPreviewCard: View {
     let sharesMood: Bool
     let sharesQuestionnaires: Bool
     let sharesTopics: Bool
+    let sharesBiometrics: Bool
+    let sharesSleep: Bool
+    let snapshot: BiometricSnapshot?
+    let sleep: SleepSummary?
     @State private var appeared = false
+
+    private var nothingShared: Bool {
+        !sharesMood && !sharesQuestionnaires && !sharesTopics && !sharesBiometrics && !sharesSleep
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -221,7 +249,7 @@ struct ClinicalPreviewCard: View {
                 Spacer()
             }
 
-            if !sharesMood && !sharesQuestionnaires && !sharesTopics {
+            if nothingShared {
                 HStack(spacing: 10) {
                     Image(systemName: "eye.slash").foregroundStyle(Theme.secondaryText)
                     Text("El psicólogo no ve nada actualmente.")
@@ -247,10 +275,37 @@ struct ClinicalPreviewCard: View {
                                     color: Theme.moodPurple)
                         .transition(.scale.combined(with: .opacity))
                     }
+                    if sharesBiometrics, let snap = snapshot {
+                        let hrv = snap.hrv.map { String(format: "HRV %.0f ms", $0) } ?? "HRV –"
+                        let o2  = snap.oxygenSaturation.map { String(format: "SpO₂ %.0f%%", $0) } ?? ""
+                        let rhr = snap.restingHeartRate.map { String(format: "FC reposo %.0f bpm", $0) } ?? ""
+                        PreviewPill(icon: "heart.fill",
+                                    text: [hrv, o2, rhr].filter { !$0.isEmpty }.joined(separator: " · "),
+                                    color: .red)
+                        .transition(.scale.combined(with: .opacity))
+                    } else if sharesBiometrics {
+                        PreviewPill(icon: "heart.fill",
+                                    text: "Biométricos: sin datos hoy",
+                                    color: .red)
+                        .transition(.scale.combined(with: .opacity))
+                    }
+                    if sharesSleep, let s = sleep {
+                        PreviewPill(icon: "moon.stars.fill",
+                                    text: "Sueño: \(s.formattedTotal) · \(s.quality.rawValue) · Profundo: \(s.formattedDeep)",
+                                    color: Theme.moodBlue)
+                        .transition(.scale.combined(with: .opacity))
+                    } else if sharesSleep {
+                        PreviewPill(icon: "moon.stars.fill",
+                                    text: "Sueño: sin datos de anoche",
+                                    color: Theme.moodBlue)
+                        .transition(.scale.combined(with: .opacity))
+                    }
                 }
                 .animation(.springy, value: sharesMood)
                 .animation(.springy, value: sharesQuestionnaires)
                 .animation(.springy, value: sharesTopics)
+                .animation(.springy, value: sharesBiometrics)
+                .animation(.springy, value: sharesSleep)
             }
         }
         .cardStyle()

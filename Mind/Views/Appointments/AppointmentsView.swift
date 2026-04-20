@@ -14,7 +14,7 @@ struct AppointmentsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.appBackground.ignoresSafeArea()
+                Theme.ambientBackground
 
                 if appointments.isEmpty {
                     EmptyAppointmentsView { showBooking = true }
@@ -306,7 +306,7 @@ struct BookAppointmentView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.appBackground.ignoresSafeArea()
+                Theme.ambientBackground
 
                 if confirmed {
                     BookingConfirmedView { dismiss() }

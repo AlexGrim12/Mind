@@ -3,8 +3,8 @@ import SwiftUI
 struct WatchBreathingView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var phase: BreathPhase = .inhale
-    @State private var scale: CGFloat = 0.5
-    @State private var opacity: Double = 0.4
+    @State private var scale: CGFloat = 0.6
+    @State private var opacity: Double = 0.5
     @State private var cycleCount = 0
     @State private var timer: Timer?
 
@@ -16,42 +16,55 @@ struct WatchBreathingView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            WatchTheme.background.ignoresSafeArea()
 
-            VStack(spacing: 12) {
+            VStack(spacing: 16) {
                 ZStack {
+                    // Círculos de respiración tipo aura
                     ForEach(0..<3) { i in
                         Circle()
-                            .fill(Color.teal.opacity(0.15 - Double(i) * 0.04))
-                            .scaleEffect(scale + CGFloat(i) * 0.15)
+                            .fill(WatchTheme.matcha.opacity(0.12 - Double(i) * 0.03))
+                            .scaleEffect(scale + CGFloat(i) * 0.2)
                             .animation(
                                 .easeInOut(duration: phaseDuration).delay(Double(i) * 0.1),
                                 value: scale
                             )
                     }
-                    Circle()
-                        .fill(Color.teal.opacity(0.7))
-                        .frame(width: 50, height: 50)
+                    
+                    // Sakura central
+                    WatchSakuraBlossom(tint: WatchTheme.matcha, core: WatchTheme.matchaDeep, size: 40)
                         .scaleEffect(scale)
+                        .rotationEffect(.degrees(scale * 360))
                         .animation(.easeInOut(duration: phaseDuration), value: scale)
                 }
-                .frame(width: 80, height: 80)
+                .frame(width: 100, height: 100)
 
-                Text(phase.rawValue)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .animation(.smooth, value: phase)
+                VStack(spacing: 4) {
+                    Text(phase.rawValue)
+                        .font(.system(size: 18, weight: .bold, design: .serif))
+                        .foregroundStyle(WatchTheme.washi)
+                        .animation(.smooth, value: phase)
 
-                Text("\(4 - cycleCount % 4) ciclos restantes")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+                    Text("\(4 - cycleCount) respiraciones")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
             }
 
             VStack {
                 Spacer()
-                Button("Listo") { dismiss() }
-                    .buttonStyle(.bordered)
-                    .padding(.bottom, 4)
+                Button {
+                    dismiss()
+                } label: {
+                    Text("Finalizar")
+                        .font(.system(size: 13, weight: .semibold))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .background(Color(.darkGray).opacity(0.4))
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .padding(.bottom, 2)
             }
         }
         .onAppear { startCycle() }
@@ -73,7 +86,7 @@ struct WatchBreathingView: View {
     private func nextPhase() {
         switch phase {
         case .inhale:
-            withAnimation(.easeInOut(duration: 4)) { scale = 1.0; opacity = 0.8 }
+            withAnimation(.easeInOut(duration: 4)) { scale = 1.2; opacity = 1.0 }
             schedule(after: 4) {
                 phase = .hold
                 nextPhase()
@@ -84,7 +97,7 @@ struct WatchBreathingView: View {
                 nextPhase()
             }
         case .exhale:
-            withAnimation(.easeInOut(duration: 4)) { scale = 0.5; opacity = 0.4 }
+            withAnimation(.easeInOut(duration: 4)) { scale = 0.6; opacity = 0.5 }
             schedule(after: 4) {
                 cycleCount += 1
                 phase = .inhale

@@ -8,7 +8,7 @@ struct SleepView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.background.ignoresSafeArea()
+                Theme.ambientBackground
 
                 if !health.isAuthorized {
                     SleepPermissionView {
@@ -67,7 +67,7 @@ struct SleepView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        Task { await health.fetchSleep() }
+                        Task { await health.fetchAll() }
                     } label: {
                         Image(systemName: "arrow.clockwise")
                             .font(.subheadline)
@@ -78,7 +78,7 @@ struct SleepView: View {
                 if !health.isAuthorized {
                     await health.requestAuthorization()
                 } else {
-                    await health.fetchSleep()
+                    await health.fetchAll()
                 }
             }
         }

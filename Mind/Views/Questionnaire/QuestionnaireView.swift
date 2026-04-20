@@ -103,7 +103,7 @@ struct QuestionnaireView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.background.ignoresSafeArea()
+                Theme.ambientBackground
 
                 switch phase {
                 case .picker:   pickerPhase

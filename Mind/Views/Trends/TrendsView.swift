@@ -4,6 +4,7 @@ import Charts
 
 struct TrendsView: View {
     @Query(sort: \MoodEntry.date) private var entries: [MoodEntry]
+    @StateObject private var health = HealthKitService.shared
     @State private var selectedRange: TrendRange = .week
     @State private var chartProgress: Double = 0
 
@@ -62,6 +63,20 @@ struct TrendsView: View {
                     .padding(.horizontal, 20)
                     .staggered(2)
 
+                    // Biométricos correlacionados
+                    if let snap = health.todaySnapshot {
+                        BiometricCorrelationCard(snap: snap, avgMood: average)
+                            .padding(.horizontal, 20)
+                            .staggered(3)
+                    }
+
+                    // Sleep en tendencia
+                    if let sleep = health.lastNightSleep {
+                        TrendSleepCard(summary: sleep)
+                            .padding(.horizontal, 20)
+                            .staggered(4)
+                    }
+
                     // Temas on-device
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
@@ -92,9 +107,110 @@ struct TrendsView: View {
             .screenBackground()
             .navigationTitle("Mi tendencia")
         }
+        .task { if health.todaySnapshot == nil { await health.fetchAll() } }
         .onAppear {
             withAnimation(.spring(duration: 1.0, bounce: 0.1).delay(0.3)) { chartProgress = 1 }
         }
+    }
+}
+
+// MARK: — Biometric correlation card
+
+struct BiometricCorrelationCard: View {
+    let snap: BiometricSnapshot
+    let avgMood: Double
+
+    private var moodColor: Color { Int(avgMood).moodColor }
+
+    private var correlation: String {
+        guard let hrv = snap.hrv else {
+            return "Registra más datos para ver correlaciones entre tu ánimo y biométricos."
+        }
+        let hrvStatus = hrv > 50 ? "bajo" : hrv > 30 ? "moderado" : "alto"
+        let moodStatus = avgMood >= 7 ? "alto" : avgMood >= 5 ? "medio" : "bajo"
+        if moodStatus == "alto" && hrvStatus == "bajo" {
+            return "Tu ánimo alto coincide con buen HRV. El descanso y manejo del estrés están funcionando."
+        } else if moodStatus == "bajo" && hrvStatus == "alto" {
+            return "Estrés elevado pese al buen ánimo aparente. Considera una sesión de mindfulness."
+        } else if moodStatus == "bajo" && hrvStatus == "bajo" {
+            return "Ánimo bajo y estrés elevado simultáneamente. Habla con tu psicólogo esta semana."
+        }
+        return "Indicadores equilibrados. Sigue con tu rutina de sueño y actividad."
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Label("Ánimo + biométricos", systemImage: "waveform.and.magnifyingglass")
+                    .font(.headline)
+                Spacer()
+            }
+
+            HStack(spacing: 16) {
+                VStack(spacing: 4) {
+                    Text(String(format: "%.1f", avgMood))
+                        .font(.title.bold()).foregroundStyle(moodColor)
+                    Text("Ánimo promedio").font(.caption).foregroundStyle(Theme.secondaryText)
+                }
+                Divider().frame(height: 44)
+
+                if let hrv = snap.hrv {
+                    VStack(spacing: 4) {
+                        Text(String(format: "%.0f ms", hrv))
+                            .font(.title.bold()).foregroundStyle(Theme.moodPurple)
+                        Text("HRV").font(.caption).foregroundStyle(Theme.secondaryText)
+                    }
+                    Divider().frame(height: 44)
+                }
+
+                if let o2 = snap.oxygenSaturation {
+                    VStack(spacing: 4) {
+                        Text(String(format: "%.0f%%", o2))
+                            .font(.title.bold()).foregroundStyle(Theme.moodBlue)
+                        Text("SpO₂").font(.caption).foregroundStyle(Theme.secondaryText)
+                    }
+                }
+            }
+
+            Text(correlation)
+                .font(.caption).foregroundStyle(Theme.secondaryText).lineSpacing(3)
+                .padding(10).background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .cardStyle()
+    }
+}
+
+// MARK: — Sleep en tendencia
+
+struct TrendSleepCard: View {
+    let summary: SleepSummary
+
+    private var color: Color {
+        switch summary.quality {
+        case .excellent: return Theme.moodGreen
+        case .good:      return Theme.moodBlue
+        case .fair:      return Theme.moodYellow
+        case .poor:      return Theme.moodPurple
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: summary.quality.icon)
+                .font(.title2).foregroundStyle(color)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Sueño de anoche · \(summary.formattedTotal)")
+                    .font(.subheadline.bold())
+                Text("Profundo: \(summary.formattedDeep)  ·  REM: \(summary.formattedREM)")
+                    .font(.caption).foregroundStyle(Theme.secondaryText)
+            }
+            Spacer()
+            Text(summary.quality.rawValue)
+                .font(.caption.bold()).foregroundStyle(color)
+                .padding(.horizontal, 10).padding(.vertical, 5)
+                .background(color.opacity(0.1)).clipShape(Capsule())
+        }
+        .cardStyle()
     }
 }
 

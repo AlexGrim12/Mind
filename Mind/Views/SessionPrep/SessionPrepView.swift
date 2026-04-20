@@ -6,6 +6,7 @@ struct SessionPrepView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \MoodEntry.date, order: .reverse) private var moodEntries: [MoodEntry]
     @AppStorage("sharesTopics") private var sharesTopics = true
+    @StateObject private var health = HealthKitService.shared
     @State private var showSessionRating = false
     @State private var activeCard: Int? = nil
 
@@ -123,6 +124,20 @@ struct SessionPrepView: View {
                 }
                 .staggered(3, base: 0)
 
+                // Card 4 — Biométricos para la sesión
+                if health.todaySnapshot != nil || health.lastNightSleep != nil {
+                    PrepCard(
+                        index: 4, activeCard: $activeCard,
+                        accentColor: .red,
+                        icon: "heart.text.clipboard",
+                        title: "Tu estado físico hoy"
+                    ) {
+                        SessionBiometricsContent(snap: health.todaySnapshot,
+                                                 sleep: health.lastNightSleep)
+                    }
+                    .staggered(4, base: 0)
+                }
+
                 // SRS post-sesión
                 if appointment.isPast {
                     Button {
@@ -154,9 +169,10 @@ struct SessionPrepView: View {
             }
             .padding(.horizontal, 20).padding(.top, 0)
         }
-        .background(Theme.background)
+        .screenBackground()
         .ignoresSafeArea(edges: .top)
         .navigationBarTitleDisplayMode(.inline)
+        .task { if health.todaySnapshot == nil { await health.fetchAll() } }
         .sheet(isPresented: $showSessionRating) {
             SessionRatingView(appointment: appointment)
         }
@@ -296,7 +312,7 @@ struct SessionRatingView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.background.ignoresSafeArea()
+                Theme.ambientBackground
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
                         // Average live
@@ -394,5 +410,86 @@ struct AnimatedSRSSlider: View {
         }
         .padding(16)
         .cardStyle(padding: 0)
+    }
+}
+
+
+// MARK: — Biometrics content inside PrepCard
+
+struct SessionBiometricsContent: View {
+    let snap: BiometricSnapshot?
+    let sleep: SleepSummary?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            // Stress level from HRV
+            if let hrv = snap?.hrv {
+                let (label, color): (String, Color) = hrv > 50
+                    ? ("Sistema nervioso equilibrado — buena sesión hoy", Theme.moodGreen)
+                    : hrv > 30
+                    ? ("Algo de tensión — menciónalo al inicio", Theme.moodYellow)
+                    : ("Estrés elevado — la sesión puede ayudar mucho", .red)
+                HStack(spacing: 10) {
+                    Image(systemName: "waveform.path.ecg")
+                        .foregroundStyle(color).font(.title3)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(label).font(.subheadline.bold()).foregroundStyle(color)
+                        Text(String(format: "HRV: %.0f ms", hrv))
+                            .font(.caption).foregroundStyle(Theme.secondaryText)
+                    }
+                }
+                .padding(12).background(color.opacity(0.08)).clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+
+            // Sleep quality
+            if let s = sleep {
+                let sleepColor: Color = s.quality == .excellent || s.quality == .good
+                    ? Theme.moodGreen : Theme.moodYellow
+                HStack(spacing: 10) {
+                    Image(systemName: s.quality.icon).foregroundStyle(sleepColor).font(.title3)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Dormiste \(s.formattedTotal) · \(s.quality.rawValue)")
+                            .font(.subheadline.bold()).foregroundStyle(Theme.textPrimary)
+                        Text(s.quality == .poor || s.quality == .fair
+                             ? "El sueño insuficiente puede afectar cómo procesas la sesión."
+                             : "Buen descanso. Estarás más receptivo/a hoy.")
+                            .font(.caption).foregroundStyle(Theme.secondaryText).lineSpacing(2)
+                    }
+                }
+                .padding(12).background(sleepColor.opacity(0.08)).clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+
+            // Quick metrics row
+            if let snap {
+                HStack(spacing: 16) {
+                    if let rhr = snap.restingHeartRate {
+                        MiniMetric(label: "FC reposo", value: "\(Int(rhr)) bpm", color: .red)
+                    }
+                    if let o2 = snap.oxygenSaturation {
+                        MiniMetric(label: "SpO₂", value: String(format: "%.0f%%", o2), color: Theme.moodBlue)
+                    }
+                    MiniMetric(label: "Pasos", value: "\(snap.steps)", color: Theme.moodGreen)
+                }
+            }
+
+            if snap == nil && sleep == nil {
+                Text("Abre Apple Health para ver tus datos biométricos de hoy.")
+                    .font(.caption).foregroundStyle(Theme.secondaryText)
+            }
+        }
+    }
+}
+
+struct MiniMetric: View {
+    let label: String; let value: String; let color: Color
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(value).font(.subheadline.bold()).foregroundStyle(color)
+            Text(label).font(.caption2).foregroundStyle(Theme.secondaryText)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(color.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

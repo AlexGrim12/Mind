@@ -27,8 +27,7 @@ struct MainTabView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            Theme.appBackground
-                .ignoresSafeArea()
+            Theme.ambientBackground
 
             TabView(selection: $selectedTab) {
                 HomeView()
@@ -39,8 +38,8 @@ struct MainTabView: View {
                     .tabItem { Label("Tendencia", systemImage: "chart.line.uptrend.xyaxis") }
                     .tag(1)
 
-                SleepView()
-                    .tabItem { Label("Sueño", systemImage: selectedTab == 2 ? "moon.stars.fill" : "moon.fill") }
+                WellnessView()
+                    .tabItem { Label("Bienestar", systemImage: selectedTab == 2 ? "heart.text.clipboard.fill" : "heart.text.clipboard") }
                     .tag(2)
 
                 AppointmentsView()
