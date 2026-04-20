@@ -151,6 +151,24 @@ struct UpcomingAppointmentCard: View {
             // Countdown
             CountdownPill(date: appointment.date)
 
+            // Apple Wallet Button
+            Button(action: {
+                Haptics.success()
+                // Wallet action placeholder
+            }) {
+                HStack {
+                    Image(systemName: "wallet.pass.fill")
+                    Text("Añadir a Apple Wallet")
+                        .font(.subheadline.bold())
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color(.systemGray5).opacity(0.5))
+                .foregroundStyle(Theme.textPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .pressEffect()
+
             // CTA
             HStack(spacing: 8) {
                 Image(systemName: "sparkles")

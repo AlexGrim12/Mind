@@ -1,6 +1,36 @@
 import SwiftUI
 
 struct RootView: View {
+    @AppStorage("isLoggedIn") private var isLoggedIn = false
+    @AppStorage("userRole") private var userRole = ""
+
+    var body: some View {
+        Group {
+            if !isLoggedIn {
+                LoginView()
+                    .transition(.opacity)
+            } else if userRole == "doctor" {
+                DoctorDashboardView()
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .opacity
+                    ))
+            } else {
+                PatientRootView()
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .opacity
+                    ))
+            }
+        }
+        .animation(.smooth, value: isLoggedIn)
+        .animation(.smooth, value: userRole)
+    }
+}
+
+// MARK: - Patient flow (keeps existing onboarding logic)
+
+struct PatientRootView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     var body: some View {
@@ -19,6 +49,8 @@ struct RootView: View {
         .animation(.smooth, value: hasCompletedOnboarding)
     }
 }
+
+// MARK: - MainTabView (patient app)
 
 struct MainTabView: View {
     @State private var showCrisis = false
@@ -55,7 +87,7 @@ struct MainTabView: View {
             .toolbarBackground(.visible, for: .tabBar)
             .toolbarBackground(.ultraThinMaterial, for: .tabBar)
 
-            // SOS flotante
+            // Floating SOS button
             Button {
                 Haptics.warning()
                 sosPressed = true
@@ -80,9 +112,7 @@ struct MainTabView: View {
                     ),
                     in: Capsule()
                 )
-                .overlay(
-                    Capsule().stroke(.white.opacity(0.2), lineWidth: 1)
-                )
+                .overlay(Capsule().stroke(.white.opacity(0.2), lineWidth: 1))
                 .shadow(color: Theme.crisisRed.opacity(0.44), radius: 16, x: 0, y: 8)
                 .scaleEffect(sosPressed ? 0.95 : 1)
                 .animation(.springy, value: sosPressed)
