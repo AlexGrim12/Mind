@@ -5,6 +5,7 @@ Este documento define como construir el backend para Mind con base en el comport
 ## 1. Objetivo
 
 Crear un backend seguro, auditable y escalable para:
+
 - sincronizar datos clinicos y de bienestar entre dispositivos,
 - habilitar portal de psicologo con consentimiento granular,
 - preservar privacidad local-first (texto crudo del diario no se comparte),
@@ -13,6 +14,7 @@ Crear un backend seguro, auditable y escalable para:
 ## 2. Alcance Analizado (sin modificar views)
 
 Views iOS analizadas:
+
 - Mind/Views/Onboarding/OnboardingView.swift
 - Mind/Views/Home/HomeView.swift
 - Mind/Views/MoodCheckin/MoodCheckinView.swift
@@ -28,6 +30,7 @@ Views iOS analizadas:
 - Mind/Views/Wellness/WellnessView.swift
 
 Views watchOS analizadas:
+
 - MindWatch Watch App/WatchHomeView.swift
 - MindWatch Watch App/WatchMoodCheckinView.swift
 - MindWatch Watch App/WatchBreathingView.swift
@@ -35,6 +38,7 @@ Views watchOS analizadas:
 - MindWatch Watch App/ContentView.swift
 
 Modelos y servicios considerados:
+
 - Mind/Models/MoodEntry.swift
 - Mind/Models/JournalEntry.swift
 - Mind/Models/Appointment.swift
@@ -199,6 +203,7 @@ Payload minimo POST /moods:
 ```
 
 Headers recomendados:
+
 - `Authorization: Bearer <token>`
 - `Idempotency-Key: <uuid>`
 
@@ -295,6 +300,7 @@ Payload minimo POST /questionnaires:
 ## 8. Seguridad, Privacidad y Compliance
 
 Minimo obligatorio:
+
 - JWT + refresh tokens.
 - Cifrado TLS en transito y cifrado en reposo para datos sensibles.
 - Auditoria inmutable de:
@@ -306,6 +312,7 @@ Minimo obligatorio:
 - Idempotencia en POST de Watch y reintentos offline.
 
 Recomendado:
+
 - Secret manager para llaves de cifrado.
 - Data retention policy con borrado verificable.
 - Export de datos y delete account flow.
@@ -313,6 +320,7 @@ Recomendado:
 ## 9. Arquitectura Recomendada
 
 Opcion sugerida:
+
 - API: NestJS + TypeScript
 - ORM: Prisma
 - DB: PostgreSQL
@@ -321,6 +329,7 @@ Opcion sugerida:
 - API docs: OpenAPI/Swagger
 
 Arquitectura logica:
+
 - BFF/API layer
 - Domain modules
   - auth
@@ -385,23 +394,27 @@ backend/
 ## 11. Plan de Implementacion por Fases
 
 ### Fase 1 (base)
+
 - Auth, users, consent.
 - Mood endpoints + sync idempotente.
 - Questionnaire endpoints + severidad.
 - OpenAPI + tests basicos.
 
 ### Fase 2 (clinico)
+
 - Clinician relationship.
 - Clinician dashboard APIs.
 - Appointment CRUD + session rating.
 - Auditoria de accesos.
 
 ### Fase 3 (salud avanzada)
+
 - Biometric snapshots y sleep summaries.
 - Wellness score diario/historico.
 - Deteccion de anomalias + eventos.
 
 ### Fase 4 (operacion)
+
 - Jobs semanales.
 - Notificaciones y alertas.
 - Hardening de seguridad y compliance.
