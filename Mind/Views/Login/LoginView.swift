@@ -3,14 +3,73 @@ import SwiftUI
 struct LoginView: View {
     @AppStorage("isLoggedIn") private var isLoggedIn = false
     @AppStorage("userRole") private var userRole = ""
+    @AppStorage("userId") private var userId = ""
 
     @State private var username = ""
     @State private var password = ""
-    @State private var showError = false
+    @State private var errorMessage: String? = nil
     @State private var isLoading = false
     @FocusState private var focusedField: LoginField?
 
     private enum LoginField { case username, password }
+
+    // Isolated computed props prevent Swift type-checker overload in body
+    private var usernameBorderColor: Color {
+        focusedField == .username ? Color.indigo : Color.white.opacity(0.1)
+    }
+    private var usernameBorderWidth: CGFloat { focusedField == .username ? 1.5 : 1 }
+    private var passwordBorderColor: Color {
+        focusedField == .password ? Color.indigo : Color.white.opacity(0.1)
+    }
+    private var passwordBorderWidth: CGFloat { focusedField == .password ? 1.5 : 1 }
+    private var usernameIconColor: Color {
+        focusedField == .username ? Color.indigo : Color.white.opacity(0.4)
+    }
+    private var passwordIconColor: Color {
+        focusedField == .password ? Color.indigo : Color.white.opacity(0.4)
+    }
+
+    @ViewBuilder private var usernameField: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "person.fill")
+                .font(.system(size: 16))
+                .foregroundStyle(usernameIconColor)
+                .frame(width: 22)
+            TextField("Ingresa tu usuario", text: $username)
+                .focused($focusedField, equals: .username)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .foregroundStyle(Color.white)
+                .tint(Color.indigo)
+                .onSubmit { focusedField = .password }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 15)
+        .background(Color.white.opacity(0.07))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(usernameBorderColor, lineWidth: usernameBorderWidth))
+        .animation(.easeInOut(duration: 0.2), value: focusedField)
+    }
+
+    @ViewBuilder private var passwordField: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 16))
+                .foregroundStyle(passwordIconColor)
+                .frame(width: 22)
+            SecureField("Ingresa tu contraseña", text: $password)
+                .focused($focusedField, equals: .password)
+                .foregroundStyle(Color.white)
+                .tint(Color.indigo)
+                .onSubmit { attemptLogin() }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 15)
+        .background(Color.white.opacity(0.07))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(passwordBorderColor, lineWidth: passwordBorderWidth))
+        .animation(.easeInOut(duration: 0.2), value: focusedField)
+    }
 
     var body: some View {
         ZStack {
@@ -52,7 +111,7 @@ struct LoginView: View {
                             .foregroundStyle(.white)
                         Text("Sistema de Bienestar Universitario")
                             .font(.caption)
-                            .foregroundStyle(.white.opacity(0.45))
+                            .foregroundStyle(Color.white.opacity(0.45))
                             .multilineTextAlignment(.center)
                     }
                 }
@@ -60,82 +119,30 @@ struct LoginView: View {
 
                 // MARK: Form card
                 VStack(spacing: 20) {
-                    // Username field
+                    // Username
                     VStack(alignment: .leading, spacing: 7) {
                         Text("MATRÍCULA / CÉDULA")
                             .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.5))
+                            .foregroundStyle(Color.white.opacity(0.5))
                             .tracking(1.0)
-
-                        HStack(spacing: 14) {
-                            Image(systemName: "person.fill")
-                                .font(.system(size: 16))
-                                .foregroundStyle(focusedField == .username ? Color.indigo : Color.white.opacity(0.4))
-                                .frame(width: 22)
-                                .animation(.easeInOut(duration: 0.2), value: focusedField)
-
-                            TextField("Ingresa tu usuario", text: $username)
-                                .focused($focusedField, equals: .username)
-                                .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled()
-                                .foregroundStyle(.white)
-                                .tint(Color.indigo)
-                                .onSubmit { focusedField = .password }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 15)
-                        .background(.white.opacity(0.07))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(
-                                    focusedField == .username ? Color.indigo : Color.white.opacity(0.1),
-                                    lineWidth: focusedField == .username ? 1.5 : 1
-                                )
-                        )
-                        .animation(.easeInOut(duration: 0.2), value: focusedField)
+                        usernameField
                     }
 
-                    // Password field
+                    // Password
                     VStack(alignment: .leading, spacing: 7) {
                         Text("CONTRASEÑA")
                             .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.5))
+                            .foregroundStyle(Color.white.opacity(0.5))
                             .tracking(1.0)
-
-                        HStack(spacing: 14) {
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: 16))
-                                .foregroundStyle(focusedField == .password ? Color.indigo : Color.white.opacity(0.4))
-                                .frame(width: 22)
-                                .animation(.easeInOut(duration: 0.2), value: focusedField)
-
-                            SecureField("Ingresa tu contraseña", text: $password)
-                                .focused($focusedField, equals: .password)
-                                .foregroundStyle(.white)
-                                .tint(Color.indigo)
-                                .onSubmit { attemptLogin() }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 15)
-                        .background(.white.opacity(0.07))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(
-                                    focusedField == .password ? Color.indigo : Color.white.opacity(0.1),
-                                    lineWidth: focusedField == .password ? 1.5 : 1
-                                )
-                        )
-                        .animation(.easeInOut(duration: 0.2), value: focusedField)
+                        passwordField
                     }
 
-                    // Error message
-                    if showError {
+                    // Error
+                    if let errorMessage {
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.circle.fill")
                                 .font(.subheadline)
-                            Text("Credenciales incorrectas. Inténtalo de nuevo.")
+                            Text(errorMessage)
                                 .font(.subheadline)
                         }
                         .foregroundStyle(.red)
@@ -143,7 +150,7 @@ struct LoginView: View {
                         .transition(.scale(scale: 0.95).combined(with: .opacity))
                     }
 
-                    // Login button
+                    // Button
                     Button(action: attemptLogin) {
                         ZStack {
                             LinearGradient(
@@ -154,9 +161,7 @@ struct LoginView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 14))
 
                             if isLoading {
-                                ProgressView()
-                                    .tint(.white)
-                                    .scaleEffect(1.1)
+                                ProgressView().tint(.white).scaleEffect(1.1)
                             } else {
                                 HStack(spacing: 10) {
                                     Text("Iniciar Sesión")
@@ -177,44 +182,63 @@ struct LoginView: View {
                     .padding(.top, 4)
                 }
                 .padding(24)
-                .background(.white.opacity(0.05))
+                .background(Color.white.opacity(0.05))
                 .clipShape(RoundedRectangle(cornerRadius: 24))
                 .overlay(
                     RoundedRectangle(cornerRadius: 24)
-                        .stroke(.white.opacity(0.09), lineWidth: 1)
+                        .stroke(Color.white.opacity(0.09), lineWidth: 1)
                 )
                 .padding(.horizontal, 24)
 
                 Spacer()
 
-                // Footer
                 VStack(spacing: 6) {
                     Label("Portal seguro · Datos locales", systemImage: "lock.shield.fill")
                         .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.25))
+                        .foregroundStyle(Color.white.opacity(0.25))
                     Text("UANL · MIND-LINK v1.0")
                         .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.18))
+                        .foregroundStyle(Color.white.opacity(0.18))
                 }
                 .padding(.bottom, 36)
             }
         }
-        .animation(.smooth, value: showError)
+        .animation(.smooth, value: errorMessage != nil)
         .contentShape(Rectangle())
         .onTapGesture { focusedField = nil }
     }
+
+    // MARK: - Login
 
     private func attemptLogin() {
         guard !username.isEmpty, !password.isEmpty else { return }
         focusedField = nil
         isLoading = true
-        showError = false
+        errorMessage = nil
 
-        // Simulated auth: "doctor" → clinician role, anyone else → patient role
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-            isLoading = false
-            userRole = username.lowercased() == "doctor" ? "doctor" : "patient"
-            isLoggedIn = true
+        Task {
+            do {
+                let response: AuthResponse = try await APIClient.shared.post(
+                    "/auth/login",
+                    body: LoginRequest(identifier: username, password: password)
+                )
+                APIClient.shared.token = response.token
+                await MainActor.run {
+                    userId = response.id
+                    userRole = response.role       // "patient" | "clinician"
+                    isLoggedIn = true
+                    isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    if case APIError.unauthorized = error {
+                        errorMessage = "Credenciales incorrectas. Inténtalo de nuevo."
+                    } else {
+                        errorMessage = error.localizedDescription
+                    }
+                }
+            }
         }
     }
 }

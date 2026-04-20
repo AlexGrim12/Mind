@@ -208,6 +208,19 @@ struct QuestionnaireView: View {
                                 } else {
                                     resultScore = totalScore
                                     phase = .result
+                                    // Sync to backend (fire-and-forget)
+                                    let finalAnswers = Array(answers.prefix(questions.count))
+                                    let finalScore = totalScore
+                                    let typeRaw = selectedType.rawValue
+                                    let severity = selectedType.interpret(score: finalScore).label
+                                    Task {
+                                        await PatientService.shared.submitQuestionnaire(
+                                            type: typeRaw,
+                                            answers: finalAnswers,
+                                            score: finalScore,
+                                            severity: severity.lowercased()
+                                        )
+                                    }
                                 }
                             }
                         }

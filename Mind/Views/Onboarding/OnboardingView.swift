@@ -83,7 +83,7 @@ struct OnboardingView: View {
                     VStack(spacing: 22) {
                         // Dots
                         HStack(spacing: 8) {
-                            ForEach(0..<(slides.count + 1)) { i in
+                            ForEach(0...slides.count, id: \.self) { i in
                                 Capsule()
                                     .fill(.white.opacity(i == currentPage ? 1 : 0.35))
                                     .frame(width: i == currentPage ? 28 : 8, height: 8)

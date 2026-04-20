@@ -6,24 +6,48 @@ struct AppointmentsView: View {
     @Query(sort: \Appointment.date) private var appointments: [Appointment]
     @Environment(\.modelContext) private var context
     @State private var showBooking = false
-    @State private var appeared = false
+    @State private var remoteAppointments: [APIPatientAppointment] = []
+    @State private var loadingRemote = false
 
     private var upcoming: [Appointment] { appointments.filter(\.isUpcoming) }
     private var past: [Appointment]    { appointments.filter(\.isPast) }
+
+    private var remoteUpcoming: [APIPatientAppointment] {
+        remoteAppointments.filter { ($0.status ?? "upcoming") != "completed" && $0.date > Date() }
+    }
+    private var remotePast: [APIPatientAppointment] {
+        remoteAppointments.filter { $0.date <= Date() }
+    }
+
+    private var hasAnyData: Bool {
+        !appointments.isEmpty || !remoteAppointments.isEmpty
+    }
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Theme.appBackground.ignoresSafeArea()
 
-                if appointments.isEmpty {
+                if !hasAnyData && !loadingRemote {
                     EmptyAppointmentsView { showBooking = true }
                 } else {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 24) {
-                            // Próximas
+                            // Citas confirmadas desde el sistema (API)
+                            if !remoteUpcoming.isEmpty {
+                                SectionBlock(title: "Próximas · Confirmadas", icon: "checkmark.seal.fill") {
+                                    VStack(spacing: 12) {
+                                        ForEach(Array(remoteUpcoming.enumerated()), id: \.element.id) { i, appt in
+                                            RemoteAppointmentCard(appointment: appt)
+                                                .staggered(i)
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Citas locales próximas
                             if !upcoming.isEmpty {
-                                SectionBlock(title: "Próximas", icon: "calendar.badge.clock") {
+                                SectionBlock(title: "Próximas · Locales", icon: "calendar.badge.clock") {
                                     VStack(spacing: 12) {
                                         ForEach(Array(upcoming.enumerated()), id: \.element.id) { i, appt in
                                             NavigationLink {
@@ -38,9 +62,21 @@ struct AppointmentsView: View {
                                 }
                             }
 
-                            // Anteriores
+                            // Citas anteriores del sistema
+                            if !remotePast.isEmpty {
+                                SectionBlock(title: "Anteriores · Sistema", icon: "clock.arrow.circlepath") {
+                                    VStack(spacing: 10) {
+                                        ForEach(Array(remotePast.enumerated()), id: \.element.id) { i, appt in
+                                            RemotePastRow(appointment: appt)
+                                                .staggered(i, base: 0.15)
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Citas locales anteriores
                             if !past.isEmpty {
-                                SectionBlock(title: "Anteriores", icon: "clock.arrow.circlepath") {
+                                SectionBlock(title: "Anteriores · Locales", icon: "clock.arrow.circlepath") {
                                     VStack(spacing: 10) {
                                         ForEach(Array(past.enumerated()), id: \.element.id) { i, appt in
                                             NavigationLink {
@@ -80,8 +116,91 @@ struct AppointmentsView: View {
                     }
                 }
             }
+            .task { await loadRemoteAppointments() }
         }
         .sheet(isPresented: $showBooking) { BookAppointmentView() }
+    }
+
+    private func loadRemoteAppointments() async {
+        loadingRemote = true
+        remoteAppointments = (try? await PatientService.shared.fetchAppointments()) ?? []
+        loadingRemote = false
+    }
+}
+
+// MARK: — Remote appointment cards
+
+struct RemoteAppointmentCard: View {
+    let appointment: APIPatientAppointment
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(LinearGradient(
+                        colors: [Theme.accent.opacity(0.8), Theme.moodPurple.opacity(0.6)],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 52, height: 52)
+                Image(systemName: "stethoscope")
+                    .font(.title3.bold())
+                    .foregroundStyle(.white)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(appointment.clinicianName ?? "Psicólogo asignado")
+                    .font(.headline)
+                    .foregroundStyle(Theme.textPrimary)
+                Text(appointment.date, style: .date)
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.secondaryText)
+                Text(appointment.date, style: .time)
+                    .font(.caption.bold())
+                    .foregroundStyle(Theme.accent)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("\(appointment.durationMinutes) min")
+                    .font(.caption.bold())
+                    .padding(.horizontal, 10).padding(.vertical, 5)
+                    .background(Theme.accent.opacity(0.12))
+                    .foregroundStyle(Theme.accent)
+                    .clipShape(Capsule())
+                Label("Confirmada", systemImage: "checkmark.seal.fill")
+                    .font(.caption2.bold())
+                    .foregroundStyle(Theme.moodGreen)
+            }
+        }
+        .cardStyle()
+    }
+}
+
+struct RemotePastRow: View {
+    let appointment: APIPatientAppointment
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(.systemGray5))
+                    .frame(width: 44, height: 44)
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(Theme.moodGreen)
+                    .font(.system(size: 22))
+            }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(appointment.clinicianName ?? "Sesión completada")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Theme.secondaryText)
+                Text(appointment.date, style: .date)
+                    .font(.caption)
+                    .foregroundStyle(Theme.secondaryText)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 16).padding(.vertical, 12)
+        .background(Theme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
     }
 }
 

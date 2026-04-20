@@ -9,7 +9,7 @@ struct RootView: View {
             if !isLoggedIn {
                 LoginView()
                     .transition(.opacity)
-            } else if userRole == "doctor" {
+            } else if userRole == "clinician" {
                 DoctorDashboardView()
                     .transition(.asymmetric(
                         insertion: .move(edge: .trailing).combined(with: .opacity),

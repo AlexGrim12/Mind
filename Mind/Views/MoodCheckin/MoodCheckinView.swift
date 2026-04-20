@@ -108,6 +108,15 @@ struct MoodCheckinView: View {
         let entry = MoodEntry(score: score, energy: energy, context: selectedContext,
                               company: selectedCompany, activity: selectedActivity)
         context.insert(entry)
+        // Sync to backend (fire-and-forget — local save is source of truth)
+        Task {
+            await PatientService.shared.syncMood(
+                score: entry.score,
+                energy: entry.energy,
+                context: entry.context.rawValue,
+                source: entry.source.rawValue
+            )
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { dismiss() }
     }
 }
