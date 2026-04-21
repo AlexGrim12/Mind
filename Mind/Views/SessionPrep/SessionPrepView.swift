@@ -6,7 +6,7 @@ struct SessionPrepView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \MoodEntry.date, order: .reverse) private var moodEntries: [MoodEntry]
     @AppStorage("sharesTopics") private var sharesTopics = true
-    @StateObject private var health = HealthKitService.shared
+    @State private var health = HealthKitService.shared
     @State private var showSessionRating = false
     @State private var activeCard: Int? = nil
 

@@ -1,21 +1,23 @@
 import Foundation
 import HealthKit
 import Combine
+import Observation
 
 @MainActor
-final class HealthKitService: ObservableObject {
+@Observable
+final class HealthKitService {
     static let shared = HealthKitService()
     private let store = HKHealthStore()
 
     // MARK: — Published state
 
-    @Published var lastNightSleep: SleepSummary? = nil
-    @Published var weekSleepHistory: [SleepSummary] = []
-    @Published var todaySnapshot: BiometricSnapshot? = nil
-    @Published var weekSnapshots: [BiometricSnapshot] = []
-    @Published var wellnessScore: WellnessScore? = nil
-    @Published var isAuthorized = false
-    @Published var isLoading = false
+    var lastNightSleep: SleepSummary? = nil
+    var weekSleepHistory: [SleepSummary] = []
+    var todaySnapshot: BiometricSnapshot? = nil
+    var weekSnapshots: [BiometricSnapshot] = []
+    var wellnessScore: WellnessScore? = nil
+    var isAuthorized = false
+    var isLoading = false
 
     // MARK: — HealthKit types to read
 

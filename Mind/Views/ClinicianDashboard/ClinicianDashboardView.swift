@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import Charts
 
 struct ClinicianDashboardView: View {
@@ -7,96 +8,81 @@ struct ClinicianDashboardView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Theme.ambientBackground
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 32) {
+                    
+                    // Encabezado Zen
+                    ToriiHeader(title: "Panel de Guía", subtitle: "Dra. Laura Rivera", kanji: "師")
+                        .padding(.top, 20)
 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 16) {
-                        // Stats summary
-                        HStack(spacing: 12) {
-                            StatPill(label: "Activos", value: "\(students.count)", color: Theme.moodGreen)
-                            StatPill(label: "Alertas", value: "\(students.filter { $0.status == .crisis }.count)", color: Theme.crisisRed)
-                            StatPill(label: "Estables", value: "\(students.filter { $0.status == .good }.count)", color: Theme.accent)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 8)
+                    // Stats summary
+                    HStack(spacing: 12) {
+                        ClinicalSummaryZenCard(title: "Activos", value: "\(students.count)", kanji: "徒", color: Theme.ai)
+                        ClinicalSummaryZenCard(title: "Alertas", value: "\(students.filter { $0.status == .crisis }.count)", kanji: "急", color: Theme.aka)
+                        ClinicalSummaryZenCard(title: "Estables", value: "\(students.filter { $0.status == .good }.count)", kanji: "静", color: Theme.matchaDeep)
+                    }
+                    .padding(.horizontal, 20)
 
-                        // Student list
+                    // Student list
+                    VStack(alignment: .leading, spacing: 16) {
+                        zenSectionHeader(title: "Alumnos a Cargo", subtitle: "Sincronía en el camino")
+                        
                         ForEach(students) { student in
                             NavigationLink {
-                                StudentDetailView(student: student)
+                                StudentDetailZenView(student: student)
                             } label: {
-                                StudentCard(student: student)
+                                StudentZenCard(student: student)
                             }
                             .buttonStyle(.plain)
-                            .padding(.horizontal, 20)
                         }
-
-                        Spacer(minLength: 40)
                     }
+                    .padding(.horizontal, 20)
+
+                    Spacer(minLength: 120)
                 }
             }
-            .navigationTitle("Portal · Dra. Rivera")
+            .screenBackground()
+            .navigationTitle("Portal Clínico · 師")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Cerrar") { dismiss() }
+                        .font(.system(.subheadline, design: .serif))
+                        .foregroundStyle(Theme.sumiSoft)
                 }
             }
         }
     }
 }
 
-struct StatPill: View {
-    let label: String
-    let value: String
-    let color: Color
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(value)
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(color)
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(Theme.secondaryText)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .cardStyle(padding: 0)
-    }
-}
-
-struct StudentCard: View {
+struct StudentZenCard: View {
     let student: StudentMock
 
     var body: some View {
-        HStack(spacing: 14) {
-            // Avatar
+        HStack(spacing: 16) {
             ZStack {
-                Circle()
-                    .fill(student.status.color.opacity(0.15))
+                EnsoCircle(color: student.status.color, lineWidth: 1.5)
                     .frame(width: 52, height: 52)
                 Text(student.initials)
-                    .font(.headline)
-                    .foregroundStyle(student.status.color)
+                    .font(.system(.headline, design: .serif))
+                    .foregroundStyle(Theme.sumi)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Text(student.name)
-                        .font(.headline)
+                        .font(.system(.headline, design: .serif))
                         .foregroundStyle(Theme.textPrimary)
                     Spacer()
-                    // Mini trend
-                    MiniSparkline(values: Array(student.moodHistory.suffix(7)), color: student.status.color)
-                        .frame(width: 56, height: 24)
+                    // Mini trend Zen
+                    MiniZenSparkline(values: Array(student.moodHistory.suffix(7)), color: student.status.color)
+                        .frame(width: 50, height: 20)
                 }
                 HStack(spacing: 8) {
-                    StatusChip(status: student.status)
+                    HankoLabelZen(status: student.status)
                     Text("· \(student.lastSeen)")
-                        .font(.caption)
-                        .foregroundStyle(Theme.secondaryText)
+                        .font(.system(.caption, design: .serif))
+                        .foregroundStyle(Theme.sumiSoft)
                 }
             }
         }
@@ -104,7 +90,7 @@ struct StudentCard: View {
     }
 }
 
-struct MiniSparkline: View {
+struct MiniZenSparkline: View {
     let values: [Int]
     let color: Color
 
@@ -112,8 +98,8 @@ struct MiniSparkline: View {
         Chart {
             ForEach(Array(values.enumerated()), id: \.offset) { i, v in
                 LineMark(x: .value("i", i), y: .value("v", v))
-                    .foregroundStyle(color)
-                    .lineStyle(StrokeStyle(lineWidth: 2))
+                    .foregroundStyle(color.opacity(0.8))
+                    .lineStyle(StrokeStyle(lineWidth: 1.5))
                     .interpolationMethod(.catmullRom)
             }
         }
@@ -123,278 +109,212 @@ struct MiniSparkline: View {
     }
 }
 
-struct StatusChip: View {
+struct HankoLabelZen: View {
     let status: StudentStatus
 
     var body: some View {
-        HStack(spacing: 4) {
-            Circle().fill(status.color).frame(width: 7, height: 7)
-            Text(status.label)
-                .font(.caption.bold())
-                .foregroundStyle(status.color)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 3)
-        .background(status.color.opacity(0.1))
-        .clipShape(Capsule())
+        Text(status.label)
+            .font(.system(size: 9, weight: .bold, design: .serif))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 6).padding(.vertical, 2)
+            .background(status.color.opacity(0.9), in: RoundedRectangle(cornerRadius: 3))
     }
 }
 
-struct StudentDetailView: View {
+struct StudentDetailZenView: View {
     let student: StudentMock
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 16) {
-                // Crisis banner
+            VStack(spacing: 32) {
+                // Perfil del Alumno
+                VStack(spacing: 16) {
+                    ZStack {
+                        EnsoCircle(color: student.status.color, lineWidth: 2)
+                            .frame(width: 100, height: 100)
+                        Text(student.initials)
+                            .font(.system(size: 36, weight: .bold, design: .serif))
+                            .foregroundStyle(Theme.sumi)
+                    }
+                    
+                    VStack(spacing: 4) {
+                        Text(student.name)
+                            .font(.system(.title2, design: .serif).bold())
+                        HankoLabelZen(status: student.status)
+                    }
+                }
+                .padding(.top, 20)
+
+                // Crisis banner Zen
                 if student.status == .crisis {
-                    HStack(spacing: 10) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                        Text("Alerta de crisis activa")
-                            .font(.subheadline.bold())
+                    HStack(spacing: 12) {
+                        HankoStamp(kanji: "急", color: .white, size: 24)
+                        Text("Atención Prioritaria: Alerta de Crisis Detectada")
+                            .font(.system(.subheadline, design: .serif).bold())
                     }
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(14)
+                    .padding(16)
                     .background(Theme.crisisRed)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                     .padding(.horizontal, 20)
                 }
 
-                // Chart
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Tendencia 30 días")
-                        .font(.headline)
+                // Chart Zen
+                VStack(alignment: .leading, spacing: 16) {
+                    zenSectionHeader(title: "Ritmo Emocional", subtitle: "Tendencia de los últimos 30 días")
                     Chart {
                         ForEach(Array(student.moodHistory.enumerated()), id: \.offset) { i, v in
                             AreaMark(x: .value("Día", i), yStart: .value("Min", 0), yEnd: .value("Score", v))
-                                .foregroundStyle(LinearGradient(colors: [Theme.accent.opacity(0.25), .clear], startPoint: .top, endPoint: .bottom))
+                                .foregroundStyle(LinearGradient(colors: [student.status.color.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                                 .interpolationMethod(.catmullRom)
                             LineMark(x: .value("Día", i), y: .value("Score", v))
-                                .foregroundStyle(Theme.accent)
+                                .foregroundStyle(student.status.color)
                                 .lineStyle(StrokeStyle(lineWidth: 2))
                                 .interpolationMethod(.catmullRom)
                         }
                     }
                     .chartYScale(domain: 0...10)
                     .chartXAxis(.hidden)
-                    .frame(height: 140)
+                    .chartYAxis {
+                        AxisMarks(values: [0, 5, 10]) { _ in
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5)).foregroundStyle(Theme.inkLine)
+                            AxisValueLabel().font(.system(.caption2, design: .serif))
+                        }
+                    }
+                    .frame(height: 160)
                 }
                 .cardStyle()
                 .padding(.horizontal, 20)
 
-                // Wellness score + biometrics
+                // Wellness Zen
                 if let ws = student.wellnessScore {
-                    StudentWellnessCard(student: student, wellnessScore: ws)
+                    StudentWellnessZenCard(student: student, wellnessScore: ws)
                         .padding(.horizontal, 20)
                 }
 
-                // Scores
+                // Scores Zen
                 HStack(spacing: 12) {
-                    ScoreCard(label: "PHQ-9", score: student.phq9, max: 27, thresholds: (5, 10, 15))
-                    ScoreCard(label: "GAD-7", score: student.gad7, max: 21, thresholds: (5, 10, 15))
+                    ScoreZenCard(label: "PHQ-9", score: student.phq9, max: 27, thresholds: (5, 10, 15))
+                    ScoreZenCard(label: "GAD-7", score: student.gad7, max: 21, thresholds: (5, 10, 15))
                 }
                 .padding(.horizontal, 20)
 
-                // Topics
-                VStack(alignment: .leading, spacing: 14) {
+                // Topics Zen
+                VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        Text("Temas desde la última sesión")
-                            .font(.headline)
+                        zenSectionHeader(title: "Temas del Camino", subtitle: "Conceptos clave del diario")
                         Spacer()
-                        Label("Anonimizados", systemImage: "lock.fill")
-                            .font(.caption)
-                            .foregroundStyle(Theme.secondaryText)
+                        HankoStamp(kanji: "題", color: Theme.ai, size: 24)
                     }
-                    FlowLayout(spacing: 8) {
+                    FlowLayout(spacing: 10) {
                         ForEach(student.topics, id: \.self) { t in
                             Text(t)
-                                .font(.subheadline)
+                                .font(.system(.caption, design: .serif).bold())
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 8)
-                                .background(Theme.accent.opacity(0.1))
-                                .foregroundStyle(Theme.accent)
+                                .background(Theme.kinari.opacity(0.6))
+                                .foregroundStyle(Theme.ai)
                                 .clipShape(Capsule())
+                                .overlay(Capsule().stroke(Theme.inkLine, lineWidth: 0.5))
                         }
                     }
                 }
                 .cardStyle()
                 .padding(.horizontal, 20)
 
-                Spacer(minLength: 40)
+                Spacer(minLength: 80)
             }
-            .padding(.top, 16)
         }
         .screenBackground()
-        .navigationTitle(student.name)
+        .navigationTitle("Detalle · 徒")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-// MARK: — Student wellness biometrics card (clinician view)
+// MARK: — Student wellness Zen (clinician view)
 
-struct StudentWellnessCard: View {
+struct StudentWellnessZenCard: View {
     let student: StudentMock
     let wellnessScore: Int
 
     private var wsColor: Color {
-        switch wellnessScore {
-        case 75...: return Theme.moodGreen
-        case 50..<75: return Theme.moodBlue
-        case 30..<50: return Theme.moodYellow
-        default: return Theme.crisisRed
-        }
+        if wellnessScore >= 75 { return Theme.matchaDeep }
+        if wellnessScore >= 50 { return Theme.ai }
+        if wellnessScore >= 30 { return Theme.tamago }
+        return Theme.crisisRed
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 20) {
             HStack {
-                Label("Bienestar Apple Health", systemImage: "heart.text.clipboard.fill")
-                    .font(.headline)
+                Text("Vitalidad del Espíritu").font(.system(.headline, design: .serif))
                 Spacer()
-                Label("Consentido", systemImage: "lock.fill")
-                    .font(.caption).foregroundStyle(Theme.secondaryText)
+                HankoStamp(kanji: "康", color: wsColor, size: 24)
             }
 
-            // Wellness score ring
-            HStack(spacing: 20) {
+            HStack(spacing: 24) {
                 ZStack {
-                    Circle()
-                        .stroke(wsColor.opacity(0.15), lineWidth: 8)
-                        .frame(width: 64, height: 64)
-                    Circle()
-                        .trim(from: 0, to: Double(wellnessScore) / 100)
-                        .stroke(wsColor, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                        .frame(width: 64, height: 64)
-                        .rotationEffect(.degrees(-90))
+                    EnsoCircle(color: wsColor, lineWidth: 3)
+                        .frame(width: 70, height: 70)
                     Text("\(wellnessScore)")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(wsColor)
+                        .font(.system(size: 24, weight: .bold, design: .serif))
+                        .foregroundStyle(Theme.sumi)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Índice de bienestar")
-                        .font(.subheadline.bold())
-                    Text(wellnessScore >= 75 ? "Estado óptimo"
-                         : wellnessScore >= 50 ? "Estado moderado"
-                         : wellnessScore >= 30 ? "Necesita atención"
-                         : "Estado crítico — priorizar en sesión")
-                        .font(.caption).foregroundStyle(wsColor)
+                    Text("Puntos Zen").font(.system(.subheadline, design: .serif).bold())
+                    Text(wellnessScore >= 75 ? "Armonía total" : "En equilibrio").font(.system(.caption, design: .serif)).foregroundStyle(Theme.sumiSoft)
                 }
                 Spacer()
             }
 
-            Divider()
+            Divider().background(Theme.inkLine)
 
-            // Biometric grid
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                if let sleep = student.sleepHours, let qual = student.sleepQuality {
-                    ClinicalMetricTile(icon: "moon.fill", label: "Sueño",
-                                      value: String(format: "%.1fh", sleep),
-                                      subtitle: qual,
-                                      color: sleep >= 7 ? Theme.moodGreen : sleep >= 5 ? Theme.moodYellow : Theme.crisisRed)
-                }
-                if let hrv = student.hrv {
-                    ClinicalMetricTile(icon: "waveform.path.ecg", label: "HRV",
-                                      value: String(format: "%.0f ms", hrv),
-                                      subtitle: hrv > 50 ? "Bajo estrés" : hrv > 30 ? "Moderado" : "Alto estrés",
-                                      color: hrv > 50 ? Theme.moodGreen : hrv > 30 ? Theme.moodYellow : Theme.crisisRed)
-                }
-                if let hr = student.restingHR {
-                    ClinicalMetricTile(icon: "heart.fill", label: "FC reposo",
-                                      value: "\(Int(hr)) bpm",
-                                      subtitle: hr < 70 ? "Óptimo" : hr < 80 ? "Normal" : "Elevado",
-                                      color: hr < 70 ? Theme.moodGreen : hr < 80 ? Theme.moodBlue : .orange)
-                }
-                if let o2 = student.o2 {
-                    ClinicalMetricTile(icon: "lungs.fill", label: "SpO₂",
-                                      value: String(format: "%.0f%%", o2),
-                                      subtitle: o2 >= 98 ? "Normal" : o2 >= 95 ? "Aceptable" : "Bajo",
-                                      color: o2 >= 98 ? Theme.moodGreen : o2 >= 95 ? Theme.moodYellow : .red)
-                }
-                if let steps = student.steps {
-                    ClinicalMetricTile(icon: "shoeprints.fill", label: "Pasos",
-                                      value: "\(steps)",
-                                      subtitle: steps >= 8000 ? "Activo" : steps >= 4000 ? "Moderado" : "Sedentario",
-                                      color: steps >= 8000 ? Theme.moodGreen : steps >= 4000 ? Theme.moodBlue : Theme.moodYellow)
-                }
-            }
-
-            // Clinical interpretation
-            if let hrv = student.hrv, let sleep = student.sleepHours {
-                let isAtRisk = hrv < 25 || sleep < 5
-                HStack(spacing: 8) {
-                    Image(systemName: isAtRisk ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
-                        .foregroundStyle(isAtRisk ? .red : Theme.moodGreen)
-                    Text(isAtRisk
-                         ? "Indicadores de estrés fisiológico elevado. Considerar intervención esta semana."
-                         : "Biométricos dentro de rangos aceptables. Mantener seguimiento habitual.")
-                        .font(.caption).foregroundStyle(Theme.secondaryText).lineSpacing(2)
-                }
-                .padding(10)
-                .background((isAtRisk ? Color.red : Theme.moodGreen).opacity(0.07))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+            // Grid minimal
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                MetricZenTile(title: "Sueño", value: String(format: "%.1fh", student.sleepHours ?? 0), unit: "", color: Theme.ai)
+                MetricZenTile(title: "HRV", value: String(format: "%.0f", student.hrv ?? 0), unit: "ms", color: Theme.moodPurple)
+                MetricZenTile(title: "FC Rep", value: "\(Int(student.restingHR ?? 0))", unit: "bpm", color: Theme.aka)
             }
         }
         .cardStyle()
     }
 }
 
-struct ClinicalMetricTile: View {
-    let icon: String; let label: String
-    let value: String; let subtitle: String; let color: Color
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Image(systemName: icon).font(.caption.bold()).foregroundStyle(color)
-            Text(value).font(.subheadline.bold()).foregroundStyle(Theme.textPrimary)
-            Text(label).font(.caption2).foregroundStyle(Theme.secondaryText)
-            Text(subtitle).font(.caption2.bold()).foregroundStyle(color)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(color.opacity(0.07))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-}
-
-struct ScoreCard: View {
+struct ScoreZenCard: View {
     let label: String
     let score: Int
     let max: Int
     let thresholds: (Int, Int, Int)
 
     private var color: Color {
-        if score < thresholds.0 { return Theme.moodGreen }
-        if score < thresholds.1 { return Theme.moodYellow }
-        if score < thresholds.2 { return .orange }
+        if score < thresholds.0 { return Theme.matchaDeep }
+        if score < thresholds.1 { return Theme.ai }
+        if score < thresholds.2 { return Theme.tamago }
         return Theme.crisisRed
     }
 
     var body: some View {
-        VStack(spacing: 10) {
-            Text(label)
-                .font(.caption.bold())
-                .foregroundStyle(Theme.secondaryText)
-            Text("\(score)")
-                .font(.system(size: 40, weight: .bold))
-                .foregroundStyle(color)
-            Text("de \(max)")
-                .font(.caption)
-                .foregroundStyle(Theme.secondaryText)
-            ProgressView(value: Double(score), total: Double(max))
-                .tint(color)
-                .scaleEffect(x: 1, y: 1.5, anchor: .center)
+        VStack(spacing: 12) {
+            Text(label).font(.system(.caption, design: .serif).bold()).foregroundStyle(Theme.sumiSoft)
+            ZStack {
+                EnsoCircle(color: color.opacity(0.3), lineWidth: 1.5).frame(width: 60, height: 60)
+                Text("\(score)").font(.system(size: 24, weight: .bold, design: .serif)).foregroundStyle(Theme.sumi)
+            }
+            Text("de \(max)").font(.system(.caption2, design: .serif)).foregroundStyle(Theme.sumiSoft)
         }
         .frame(maxWidth: .infinity)
         .cardStyle()
     }
 }
 
+// MARK: — Models
+
 enum StudentStatus: Equatable {
     case good, warning, crisis
     var color: Color {
-        switch self { case .good: Theme.moodGreen; case .warning: Theme.moodYellow; case .crisis: Theme.crisisRed }
+        switch self { case .good: Theme.matcha; case .warning: Theme.tamago; case .crisis: Theme.crisisRed }
     }
     var label: String {
         switch self { case .good: "Estable"; case .warning: "Atención"; case .crisis: "Crisis" }
@@ -406,7 +326,7 @@ struct StudentMock: Identifiable {
     let name: String; let initials: String; let status: StudentStatus
     let lastSeen: String; let moodHistory: [Int]
     let phq9: Int; let gad7: Int; let topics: [String]
-    // Biometrics (shared from Apple Health via consent)
+    // Biometría compartida (simulada)
     let sleepHours: Double?; let sleepQuality: String?
     let hrv: Double?; let restingHR: Double?; let o2: Double?
     let steps: Int?; let wellnessScore: Int?

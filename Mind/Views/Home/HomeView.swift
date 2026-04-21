@@ -7,8 +7,8 @@ import Foundation
 struct HomeView: View {
     @Query(sort: \MoodEntry.date, order: .reverse) private var moodEntries: [MoodEntry]
     @Query(sort: \Appointment.date) private var appointments: [Appointment]
-    @EnvironmentObject private var watchService: WatchConnectivityService
-    @StateObject private var healthKit = HealthKitService.shared
+    @Environment(WatchConnectivityService.self) private var watchService
+    @State private var healthKit = HealthKitService.shared
 
     @State private var showCheckin = false
     @State private var showJournal = false
@@ -23,20 +23,11 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-<<<<<<< Updated upstream
-            ScrollWrapper {
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        ZenTopProfileHeader(onSettings: { showSettings = true })
-                            .padding(.top, 20)
-                            .staggered(0)
-=======
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 40) { // Mayor 'Ma' (espacio) entre secciones
-                    ZenTopProfileHeader()
+                    ZenTopProfileHeader(onSettings: { showSettings = true })
                         .padding(.top, 20)
                         .staggered(0)
->>>>>>> Stashed changes
 
                     HeroHeader(entry: todayEntry, appeared: true)
                         .staggered(1)

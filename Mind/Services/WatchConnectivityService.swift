@@ -2,26 +2,28 @@ import Foundation
 import Combine
 import WatchConnectivity
 import SwiftData
+import Observation
 
+@Observable
 @MainActor
-final class WatchConnectivityService: NSObject, ObservableObject {
+final class WatchConnectivityService: NSObject {
     static let shared = WatchConnectivityService()
 
-    @Published var isPaired = false
-    @Published var isWatchAppInstalled = false
-    @Published var isReachable = false
-    @Published var latestHeartRate: Double? = nil
-    @Published var latestHRV: Double? = nil
-    @Published var latestO2: Double? = nil
-    @Published var latestSteps: Int = 0
-    @Published var latestStressLevel: String = "–"
-    @Published var watchBatteryLevel: Int? = nil
-    @Published var lastWatchSyncDate: Date? = nil
-    @Published var lastWatchMoodScore: Int? = nil
-    @Published var isRequestingLiveSync = false
-    @Published var watchActionMessage = "Sincronización pendiente"
+    var isPaired = false
+    var isWatchAppInstalled = false
+    var isReachable = false
+    var latestHeartRate: Double? = nil
+    var latestHRV: Double? = nil
+    var latestO2: Double? = nil
+    var latestSteps: Int = 0
+    var latestStressLevel: String = "–"
+    var watchBatteryLevel: Int? = nil
+    var lastWatchSyncDate: Date? = nil
+    var lastWatchMoodScore: Int? = nil
+    var isRequestingLiveSync = false
+    var watchActionMessage = "Sincronización pendiente"
 
-    private var modelContext: ModelContext?
+    @ObservationIgnored private var modelContext: ModelContext?
 
     override init() {
         super.init()

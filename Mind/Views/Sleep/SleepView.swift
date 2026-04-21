@@ -2,7 +2,7 @@ import SwiftUI
 import Charts
 
 struct SleepView: View {
-    @StateObject private var health = HealthKitService.shared
+    @State private var health = HealthKitService.shared
     @State private var selectedSummary: SleepSummary? = nil
 
     var body: some View {

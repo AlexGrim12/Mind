@@ -4,7 +4,7 @@ import Charts
 
 struct TrendsView: View {
     @Query(sort: \MoodEntry.date) private var entries: [MoodEntry]
-    @StateObject private var health = HealthKitService.shared
+    @State private var health = HealthKitService.shared
     @State private var selectedRange: TrendRange = .week
     @State private var chartProgress: Double = 0
 

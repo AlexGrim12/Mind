@@ -13,70 +13,63 @@ struct AppointmentsView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Theme.ambientBackground
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 32) {
+                    
+                    // Encabezado Zen
+                    ToriiHeader(title: "Tus Encuentros", subtitle: "Espacio de escucha y apoyo", kanji: "会")
+                        .padding(.top, 20)
 
-                if appointments.isEmpty {
-                    EmptyAppointmentsView { showBooking = true }
-                } else {
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 24) {
+                    if appointments.isEmpty {
+                        EmptyAppointmentsZenView { showBooking = true }
+                            .padding(.top, 40)
+                    } else {
+                        VStack(spacing: 32) {
                             // Próximas
                             if !upcoming.isEmpty {
-                                SectionBlock(title: "Próximas", icon: "calendar.badge.clock") {
-                                    VStack(spacing: 12) {
-                                        ForEach(Array(upcoming.enumerated()), id: \.element.id) { i, appt in
-                                            NavigationLink {
-                                                SessionPrepView(appointment: appt)
-                                            } label: {
-                                                UpcomingAppointmentCard(appointment: appt)
-                                            }
-                                            .buttonStyle(.plain)
-                                            .staggered(i)
+                                VStack(alignment: .leading, spacing: 16) {
+                                    zenSectionHeader(title: "Próximas Sesiones", subtitle: "Momentos de reflexión")
+                                    
+                                    ForEach(Array(upcoming.enumerated()), id: \.element.id) { i, appt in
+                                        NavigationLink {
+                                            SessionPrepView(appointment: appt)
+                                        } label: {
+                                            UpcomingAppointmentZenCard(appointment: appt)
                                         }
+                                        .buttonStyle(.plain)
+                                        .staggered(i)
                                     }
                                 }
                             }
 
                             // Anteriores
                             if !past.isEmpty {
-                                SectionBlock(title: "Anteriores", icon: "clock.arrow.circlepath") {
-                                    VStack(spacing: 10) {
-                                        ForEach(Array(past.enumerated()), id: \.element.id) { i, appt in
-                                            NavigationLink {
-                                                SessionPrepView(appointment: appt)
-                                            } label: {
-                                                PastAppointmentRow(appointment: appt)
-                                            }
-                                            .buttonStyle(.plain)
+                                VStack(alignment: .leading, spacing: 16) {
+                                    zenSectionHeader(title: "Historial", subtitle: "Tu camino recorrido")
+                                    
+                                    ForEach(Array(past.enumerated()), id: \.element.id) { i, appt in
+                                        PastAppointmentZenRow(appointment: appt)
                                             .staggered(i, base: 0.2)
-                                        }
                                     }
                                 }
                             }
 
-                            Spacer(minLength: 100)
+                            Spacer(minLength: 120)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 16)
                     }
                 }
+                .padding(.horizontal, 20)
             }
-            .navigationTitle("Mis citas")
+            .screenBackground()
+            .navigationTitle("Citas · 会")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         Haptics.impact(.medium)
                         showBooking = true
                     } label: {
-                        ZStack {
-                            Circle()
-                                .fill(Theme.accent)
-                                .frame(width: 32, height: 32)
-                            Image(systemName: "plus")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundStyle(.white)
-                        }
+                        HankoStamp(kanji: "＋", color: Theme.ai, size: 32)
                     }
                 }
             }
@@ -85,225 +78,131 @@ struct AppointmentsView: View {
     }
 }
 
-// MARK: — Section block
+// MARK: — Upcoming Zen Card
 
-struct SectionBlock<Content: View>: View {
-    let title: String
-    let icon: String
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(title, systemImage: icon)
-                .font(.headline)
-                .foregroundStyle(Theme.textPrimary)
-            content
-        }
-    }
-}
-
-// MARK: — Upcoming card (destacada)
-
-struct UpcomingAppointmentCard: View {
+struct UpcomingAppointmentZenCard: View {
     let appointment: Appointment
-    @State private var shimmerOn = false
-
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 14) {
-                // Avatar con gradiente
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 16) {
+                // Avatar Estilo Enso
                 ZStack {
-                    Circle()
-                        .fill(LinearGradient(colors: [Theme.accent.opacity(0.8), Theme.moodPurple.opacity(0.6)],
-                                             startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 52, height: 52)
-                    Text(appointment.clinicianName.prefix(2).uppercased())
-                        .font(.headline.bold())
-                        .foregroundStyle(.white)
+                    EnsoCircle(color: Theme.ai, lineWidth: 1.5)
+                        .frame(width: 56, height: 56)
+                    Text(appointment.clinicianName.prefix(1))
+                        .font(.system(size: 24, weight: .bold, design: .serif))
+                        .foregroundStyle(Theme.sumi)
                 }
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(appointment.clinicianName)
-                        .font(.headline)
+                        .font(.system(.headline, design: .serif))
                         .foregroundStyle(Theme.textPrimary)
                     Text(appointment.formattedDate)
-                        .font(.subheadline)
-                        .foregroundStyle(Theme.secondaryText)
+                        .font(.system(.subheadline, design: .serif))
+                        .foregroundStyle(Theme.sumiSoft)
                 }
                 Spacer()
-
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(appointment.duration == .express ? "15 min" : "50 min")
-                        .font(.caption.bold())
-                        .padding(.horizontal, 10).padding(.vertical, 5)
-                        .background(Theme.accent.opacity(0.12))
-                        .foregroundStyle(Theme.accent)
-                        .clipShape(Capsule())
-
-                    if appointment.isRemote {
-                        Label("Remoto", systemImage: "video.fill")
-                            .font(.caption)
-                            .foregroundStyle(Theme.moodGreen)
-                    }
-                }
+                
+                HankoStamp(kanji: "師", color: Theme.ai.opacity(0.6), size: 28)
             }
 
-            // Countdown
-            CountdownPill(date: appointment.date)
-
-            // Apple Wallet Button
-            Button(action: {
-                Haptics.success()
-                // Wallet action placeholder
-            }) {
-                HStack {
-                    Image(systemName: "wallet.pass.fill")
-                    Text("Añadir a Apple Wallet")
-                        .font(.subheadline.bold())
+            HStack {
+                Label(appointment.duration == .express ? "15 min" : "50 min", systemImage: "clock")
+                Spacer()
+                if appointment.isRemote {
+                    Label("En remoto", systemImage: "video.fill")
+                        .foregroundStyle(Theme.matchaDeep)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(Color(.systemGray5).opacity(0.5))
-                .foregroundStyle(Theme.textPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            .pressEffect()
-
-            // CTA
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles")
-                Text("Preparar sesión")
-                    .font(.subheadline.bold())
+            .font(.system(.caption, design: .serif).bold())
+            .foregroundStyle(Theme.sumiSoft)
+            
+            // Botón Zen CTA
+            HStack {
+                Text("Preparar el corazón para la sesión")
+                    .font(.system(.subheadline, design: .serif).weight(.semibold))
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.caption.bold())
             }
             .foregroundStyle(.white)
-            .padding(.horizontal, 16).padding(.vertical, 12)
-            .background(Theme.accent)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(.horizontal, 20).padding(.vertical, 14)
+            .background(Theme.primaryGradient)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
         .cardStyle()
     }
 }
 
-struct CountdownPill: View {
-    let date: Date
-    @State private var timeString = ""
+// MARK: — Past Zen Row
 
-    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "timer")
-                .font(.caption.bold())
-            Text(timeString)
-                .font(.caption.bold())
-                .contentTransition(.numericText())
-        }
-        .foregroundStyle(Theme.moodGreen)
-        .padding(.horizontal, 12).padding(.vertical, 6)
-        .background(Theme.moodGreen.opacity(0.1))
-        .clipShape(Capsule())
-        .onAppear { updateTime() }
-        .onReceive(timer) { _ in withAnimation(.smooth) { updateTime() } }
-    }
-
-    private func updateTime() {
-        let diff = date.timeIntervalSinceNow
-        if diff <= 0 { timeString = "Ahora"; return }
-        let days = Int(diff / 86400)
-        let hours = Int((diff.truncatingRemainder(dividingBy: 86400)) / 3600)
-        let mins = Int((diff.truncatingRemainder(dividingBy: 3600)) / 60)
-        if days > 0 { timeString = "En \(days)d \(hours)h" }
-        else if hours > 0 { timeString = "En \(hours)h \(mins)m" }
-        else { timeString = "En \(mins) min" }
-    }
-}
-
-// MARK: — Past row
-
-struct PastAppointmentRow: View {
+struct PastAppointmentZenRow: View {
     let appointment: Appointment
 
     var body: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(.systemGray5))
-                    .frame(width: 44, height: 44)
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Theme.moodGreen)
-                    .font(.system(size: 22))
-            }
-            VStack(alignment: .leading, spacing: 3) {
+        HStack(spacing: 16) {
+            Circle()
+                .fill(Theme.kinari.opacity(0.5))
+                .frame(width: 40, height: 40)
+                .overlay(Image(systemName: "checkmark").font(.caption.bold()).foregroundStyle(Theme.matchaDeep))
+            
+            VStack(alignment: .leading, spacing: 2) {
                 Text(appointment.clinicianName)
-                    .font(.subheadline.bold())
-                    .foregroundStyle(Theme.secondaryText)
+                    .font(.system(.subheadline, design: .serif).weight(.bold))
+                    .foregroundStyle(Theme.sumi)
                 Text(appointment.formattedDate)
-                    .font(.caption)
-                    .foregroundStyle(Theme.secondaryText)
+                    .font(.system(.caption, design: .serif))
+                    .foregroundStyle(Theme.sumiSoft)
             }
             Spacer()
+            
             if appointment.sessionRating != nil {
-                Image(systemName: "star.fill")
-                    .font(.caption)
-                    .foregroundStyle(Theme.moodYellow)
-            } else {
-                Text("Valorar")
-                    .font(.caption.bold())
-                    .foregroundStyle(Theme.accent)
+                SakuraBlossom(size: 16)
             }
         }
-        .padding(.horizontal, 16).padding(.vertical, 12)
-        .background(Theme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
+        .padding(14)
+        .background(Theme.cardBackground.opacity(0.6))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Theme.inkLine, lineWidth: 0.5))
     }
 }
 
-// MARK: — Empty state
+// MARK: — Empty state Zen
 
-struct EmptyAppointmentsView: View {
+struct EmptyAppointmentsZenView: View {
     let onBook: () -> Void
-    @State private var iconBounce = false
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 32) {
             ZStack {
-                Circle()
-                    .fill(Theme.accent.opacity(0.08))
-                    .frame(width: 120, height: 120)
-                Image(systemName: "calendar.badge.plus")
-                    .font(.system(size: 52))
-                    .foregroundStyle(Theme.accent)
-                    .scaleEffect(iconBounce ? 1.08 : 1)
-                    .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: iconBounce)
+                EnsoCircle(color: Theme.sumi.opacity(0.1), lineWidth: 2)
+                    .frame(width: 140, height: 140)
+                PagodaIcon()
+                    .frame(width: 60, height: 60)
+                    .opacity(0.2)
             }
 
-            VStack(spacing: 8) {
-                Text("Sin citas agendadas")
-                    .font(.title3.bold())
-                    .foregroundStyle(Theme.textPrimary)
-                Text("Reserva una sesión con tu psicólogo\npara empezar.")
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.secondaryText)
+            VStack(spacing: 12) {
+                Text("Silencio en tu agenda")
+                    .font(.system(.title3, design: .serif).weight(.bold))
+                Text("No hay encuentros programados. Reserva un momento para tu bienestar.")
+                    .font(.system(.subheadline, design: .serif))
+                    .foregroundStyle(Theme.sumiSoft)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
             }
 
-            Button(action: { Haptics.impact(.medium); onBook() }) {
-                Text("Agendar primera cita")
-                    .primaryButton()
+            Button(action: onBook) {
+                Text("Solicitar Encuentro")
             }
-            .pressEffect()
+            .primaryButton()
             .padding(.horizontal, 40)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear { iconBounce = true }
     }
 }
 
-// MARK: — Booking sheet
+// MARK: — Booking View Zen
 
 struct BookAppointmentView: View {
     @Environment(\.modelContext) private var context
@@ -324,66 +223,60 @@ struct BookAppointmentView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.ambientBackground
+                Theme.ambientBackground.ignoresSafeArea()
 
                 if confirmed {
-                    BookingConfirmedView { dismiss() }
+                    BookingConfirmedZenView { dismiss() }
                 } else {
                     ScrollView(showsIndicators: false) {
-                        VStack(spacing: 20) {
-                            // Clinician header
-                            HStack(spacing: 14) {
+                        VStack(spacing: 32) {
+                            ToriiHeader(title: "Agendar Encuentro", subtitle: "Selecciona un momento de paz", kanji: "約")
+                                .padding(.top, 20)
+
+                            // Guía Header
+                            HStack(spacing: 16) {
                                 ZStack {
-                                    Circle()
-                                        .fill(LinearGradient(colors: [Theme.accent, Theme.moodPurple],
-                                                             startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .frame(width: 56, height: 56)
-                                    Text("DR").font(.headline.bold()).foregroundStyle(.white)
+                                    EnsoCircle(color: Theme.ai, lineWidth: 1.5)
+                                        .frame(width: 60, height: 60)
+                                    Text("師").font(.system(size: 24, design: .serif)).foregroundStyle(Theme.sumi)
                                 }
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text("Dra. Laura Rivera")
-                                        .font(.headline).foregroundStyle(Theme.textPrimary)
-                                    Text("Psicología clínica · CBT")
-                                        .font(.caption).foregroundStyle(Theme.secondaryText)
-                                    HStack(spacing: 4) {
-                                        Circle().fill(Theme.moodGreen).frame(width: 7, height: 7)
-                                        Text("Disponible").font(.caption).foregroundStyle(Theme.moodGreen)
-                                    }
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Dra. Laura Rivera").font(.system(.headline, design: .serif))
+                                    Text("Tu guía en el camino").font(.system(.caption, design: .serif)).foregroundStyle(Theme.sumiSoft)
                                 }
                                 Spacer()
                             }
                             .cardStyle()
 
-                            // Tipo
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("Tipo de cita").font(.headline)
+                            // Duración
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Duración del Encuentro").font(.system(.subheadline, design: .serif).bold())
                                 HStack(spacing: 12) {
                                     ForEach(AppointmentDuration.allCases, id: \.self) { d in
-                                        DurationChip(duration: d, selected: duration == d) {
+                                        DurationZenChip(duration: d, selected: duration == d) {
                                             Haptics.selection()
                                             withAnimation(.springy) { duration = d }
                                         }
                                     }
                                 }
+                                
+                                Divider().background(Theme.inkLine)
+                                
                                 Toggle(isOn: $isRemote) {
-                                    Label("Videollamada", systemImage: "video.fill")
-                                        .font(.subheadline)
+                                    Label("Encuentro Virtual", systemImage: "video.fill")
+                                        .font(.system(.subheadline, design: .serif))
                                 }
-                                .tint(Theme.accent)
-                                .onChange(of: isRemote) { _, _ in Haptics.selection() }
+                                .tint(Theme.ai)
                             }
                             .cardStyle()
 
                             // Horarios
-                            VStack(alignment: .leading, spacing: 14) {
-                                Text("Horarios disponibles")
-                                    .font(.headline)
-                                Text("Mañana · \(slots.first?.formatted(.dateTime.weekday(.wide).day().month()) ?? "")")
-                                    .font(.subheadline).foregroundStyle(Theme.secondaryText)
-
-                                LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 4), spacing: 10) {
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Horarios Disponibles").font(.system(.subheadline, design: .serif).bold())
+                                
+                                FlowLayout(spacing: 10) {
                                     ForEach(slots, id: \.self) { slot in
-                                        TimeSlotButton(slot: slot, selected: selectedSlot == slot) {
+                                        TimeSlotZenButton(slot: slot, selected: selectedSlot == slot) {
                                             Haptics.selection()
                                             withAnimation(.springy) { selectedSlot = slot }
                                         }
@@ -392,30 +285,30 @@ struct BookAppointmentView: View {
                             }
                             .cardStyle()
 
-                            // Confirmar
+                            // Botón de Confirmación
                             Button {
                                 guard selectedSlot != nil else { return }
                                 Haptics.success()
                                 book()
                                 withAnimation(.springy) { confirmed = true }
                             } label: {
-                                Text(selectedSlot == nil ? "Selecciona un horario" : "Confirmar cita")
-                                    .primaryButton(color: selectedSlot == nil ? Color(.systemGray3) : Theme.accent)
+                                Text(selectedSlot == nil ? "Elige un horario" : "Confirmar Cita")
                             }
-                            .pressEffect()
+                            .primaryButton(color: selectedSlot == nil ? Theme.sumiSoft.opacity(0.5) : Theme.ai)
                             .disabled(selectedSlot == nil)
 
                             Spacer(minLength: 40)
                         }
-                        .padding(.horizontal, 20).padding(.top, 16)
+                        .padding(.horizontal, 20)
                     }
                 }
             }
-            .navigationTitle("Reservar cita")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancelar") { dismiss() }
+                    Button("Cerrar") { dismiss() }
+                        .font(.system(.subheadline, design: .serif))
+                        .foregroundStyle(Theme.sumiSoft)
                 }
             }
         }
@@ -428,35 +321,30 @@ struct BookAppointmentView: View {
     }
 }
 
-struct DurationChip: View {
+struct DurationZenChip: View {
     let duration: AppointmentDuration
     let selected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 6) {
-                Image(systemName: duration.icon)
-                    .font(.title3)
-                    .foregroundStyle(selected ? .white : Theme.accent)
+            VStack(spacing: 4) {
+                Text(duration == .express ? "短" : "全") // Short vs Full
+                    .font(.system(size: 20, weight: .bold, design: .serif))
                 Text(duration == .express ? "15 min" : "50 min")
-                    .font(.caption.bold())
-                    .foregroundStyle(selected ? .white : Theme.textPrimary)
-                Text(duration == .express ? "Express" : "Completa")
-                    .font(.caption2)
-                    .foregroundStyle(selected ? .white.opacity(0.8) : Theme.secondaryText)
+                    .font(.system(.caption2, design: .serif).bold())
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(selected ? Theme.accent : Theme.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .scaleEffect(selected ? 1.03 : 1)
-            .animation(.springy, value: selected)
+            .padding(.vertical, 12)
+            .background(selected ? Theme.ai : Theme.kinari.opacity(0.3))
+            .foregroundStyle(selected ? .white : Theme.sumi)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.inkLine, lineWidth: selected ? 0 : 0.5))
         }
     }
 }
 
-struct TimeSlotButton: View {
+struct TimeSlotZenButton: View {
     let slot: Date
     let selected: Bool
     let action: () -> Void
@@ -464,63 +352,53 @@ struct TimeSlotButton: View {
     var body: some View {
         Button(action: action) {
             Text(slot, format: .dateTime.hour().minute())
-                .font(.subheadline.bold())
-                .foregroundStyle(selected ? .white : Theme.textPrimary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(selected ? Theme.accent : Theme.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .scaleEffect(selected ? 1.06 : 1)
-                .shadow(color: selected ? Theme.accent.opacity(0.4) : .clear, radius: 6, y: 3)
-                .animation(.springy, value: selected)
+                .font(.system(.subheadline, design: .serif).weight(.bold))
+                .padding(.horizontal, 16).padding(.vertical, 10)
+                .background(selected ? Theme.ai : Theme.cardBackground)
+                .foregroundStyle(selected ? .white : Theme.sumi)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(Theme.inkLine, lineWidth: selected ? 0 : 0.5))
         }
     }
 }
 
-struct BookingConfirmedView: View {
+struct BookingConfirmedZenView: View {
     let onDone: () -> Void
-    @State private var scale: CGFloat = 0
-    @State private var ringsVisible = false
+    @State private var appeared = false
 
     var body: some View {
-        VStack(spacing: 28) {
+        VStack(spacing: 32) {
             Spacer()
+            
             ZStack {
-                ForEach(0..<3) { i in
-                    Circle()
-                        .stroke(Theme.moodGreen.opacity(0.15 - Double(i) * 0.04), lineWidth: 2)
-                        .frame(width: 100 + CGFloat(i) * 30)
-                        .scaleEffect(ringsVisible ? 1 : 0.5)
-                        .opacity(ringsVisible ? 1 : 0)
-                        .animation(.springy.delay(Double(i) * 0.1), value: ringsVisible)
-                }
-                ZStack {
-                    Circle().fill(Theme.moodGreen).frame(width: 90, height: 90)
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 40, weight: .bold))
-                        .foregroundStyle(.white)
-                }
-                .scaleEffect(scale)
-                .animation(.bouncy.delay(0.1), value: scale)
+                EnsoCircle(color: Theme.matcha, lineWidth: 3)
+                    .frame(width: 150, height: 150)
+                    .rotationEffect(.degrees(appeared ? 360 : 0))
+                
+                HankoStamp(kanji: "成", color: Theme.matchaDeep, size: 80) // "Success / Accomplished"
+                    .scaleEffect(appeared ? 1 : 0.5)
+            }
+            
+            VStack(spacing: 12) {
+                Text("Vínculo Establecido")
+                    .font(.system(.title2, design: .serif).weight(.bold))
+                Text("Tu encuentro ha sido registrado en el gran pergamino de tu camino.")
+                    .font(.system(.subheadline, design: .serif))
+                    .foregroundStyle(Theme.sumiSoft)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
             }
 
-            VStack(spacing: 8) {
-                Text("¡Cita confirmada!")
-                    .font(.title.bold()).foregroundStyle(Theme.textPrimary)
-                Text("Te esperamos. Revisa tu calendario.")
-                    .font(.subheadline).foregroundStyle(Theme.secondaryText)
+            Button(action: onDone) {
+                Text("Cerrar")
             }
-
-            Button(action: { Haptics.impact(.light); onDone() }) {
-                Text("Perfecto")
-                    .primaryButton(color: Theme.moodGreen)
-            }
-            .pressEffect()
-            .padding(.horizontal, 40)
+            .primaryButton()
+            .padding(.horizontal, 60)
+            
             Spacer()
         }
         .onAppear {
-            withAnimation { scale = 1; ringsVisible = true }
+            withAnimation(.spring(duration: 1.5)) { appeared = true }
         }
     }
 }

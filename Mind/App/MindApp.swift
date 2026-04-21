@@ -57,7 +57,7 @@ struct MindApp: App {
         WindowGroup {
             RootView()
                 .modelContainer(container)
-                .environmentObject(watchService)
+                .environment(watchService)
                 .task {
                     watchService.setContext(container.mainContext)
                 }
