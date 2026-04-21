@@ -14,6 +14,7 @@ struct HomeView: View {
     @State private var showJournal = false
     @State private var showQuestionnaire = false
     @State private var showSafetyPlan = false
+    @State private var showSettings = false
 
     private var todayEntry: MoodEntry? {
         moodEntries.first { Calendar.current.isDateInToday($0.date) }
@@ -30,7 +31,7 @@ struct HomeView: View {
             ScrollWrapper {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
-                        ZenTopProfileHeader()
+                        ZenTopProfileHeader(onSettings: { showSettings = true })
                             .padding(.top, 20)
                             .staggered(0)
 
@@ -76,6 +77,7 @@ struct HomeView: View {
         .sheet(isPresented: $showJournal) { JournalView() }
         .sheet(isPresented: $showQuestionnaire) { QuestionnaireView() }
         .sheet(isPresented: $showSafetyPlan) { SafetyPlanView() }
+        .sheet(isPresented: $showSettings) { PatientSettingsView() }
         .onAppear { pushContextToWatch() }
         .task {
             await healthKit.requestAuthorization()
@@ -94,6 +96,8 @@ struct HomeView: View {
 // MARK: — 新 Home sections inspired by the provided mock
 
 private struct ZenTopProfileHeader: View {
+    let onSettings: () -> Void
+    
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
@@ -112,7 +116,7 @@ private struct ZenTopProfileHeader: View {
 
             Spacer()
 
-            Button {} label: {
+            Button(action: { Haptics.selection(); onSettings() }) {
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(Theme.sumiSoft)
