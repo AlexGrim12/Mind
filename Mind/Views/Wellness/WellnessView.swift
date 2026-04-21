@@ -7,64 +7,68 @@ struct WellnessView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Theme.ambientBackground
-
-                if !health.isAuthorized {
-                    WellnessPermissionView { Task { await health.requestAuthorization() } }
-                } else if health.isLoading && health.todaySnapshot == nil {
-                    ProgressView("Analizando tus datos…")
-                        .tint(Theme.accent)
-                } else {
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 20) {
-
-                            if let score = health.wellnessScore {
-                                WellnessScoreHero(score: score)
-                                    .staggered(0, base: 0)
-
-                                ScoreBreakdownCard(score: score)
-                                    .staggered(1, base: 0)
-                            }
-
-                            if let snap = health.todaySnapshot {
-                                CardiovascularCard(snap: snap)
-                                    .staggered(2, base: 0)
-
-                                ActivityCard(snap: snap)
-                                    .staggered(3, base: 0)
-
-                                BodyMetricsCard(snap: snap)
-                                    .staggered(4, base: 0)
-
-                                MindEnvironmentCard(snap: snap)
-                                    .staggered(5, base: 0)
-                            }
-
-                            if !health.weekSnapshots.isEmpty {
-                                WeeklyActivityChart(snapshots: health.weekSnapshots,
-                                                    selected: $selectedSnap)
-                                    .staggered(6, base: 0)
-                            }
-
-                            if let sleep = health.lastNightSleep {
-                                SleepSummaryTile(summary: sleep)
-                                    .staggered(7, base: 0)
-                            }
-
-                            Spacer(minLength: 100)
+            ScrollWrapper {
+                Group {
+                    if !health.isAuthorized {
+                        WellnessPermissionView { Task { await health.requestAuthorization() } }
+                    } else if health.isLoading && health.todaySnapshot == nil {
+                        VStack {
+                            ProgressView("Analizando tus datos…")
+                                .tint(Theme.accent)
+                                .font(.zenBody)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 16)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 24) {
+
+                                if let score = health.wellnessScore {
+                                    WellnessScoreHero(score: score)
+                                        .staggered(0, base: 0)
+
+                                    ScoreBreakdownCard(score: score)
+                                        .staggered(1, base: 0)
+                                }
+
+                                if let snap = health.todaySnapshot {
+                                    CardiovascularCard(snap: snap)
+                                        .staggered(2, base: 0)
+
+                                    ActivityCard(snap: snap)
+                                        .staggered(3, base: 0)
+
+                                    BodyMetricsCard(snap: snap)
+                                        .staggered(4, base: 0)
+
+                                    MindEnvironmentCard(snap: snap)
+                                        .staggered(5, base: 0)
+                                }
+
+                                if !health.weekSnapshots.isEmpty {
+                                    WeeklyActivityChart(snapshots: health.weekSnapshots,
+                                                        selected: $selectedSnap)
+                                        .staggered(6, base: 0)
+                                }
+
+                                if let sleep = health.lastNightSleep {
+                                    SleepSummaryTile(summary: sleep)
+                                        .staggered(7, base: 0)
+                                }
+
+                                Spacer(minLength: 120)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 24)
+                        }
                     }
                 }
             }
             .navigationTitle("Bienestar")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button { Task { await health.fetchAll() } } label: {
-                        Image(systemName: "arrow.clockwise").font(.subheadline)
+                        Image(systemName: "arrow.clockwise").font(.subheadline.bold())
                     }
                 }
             }

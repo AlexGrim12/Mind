@@ -29,12 +29,10 @@ struct JournalView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                Theme.ambientBackground
-
+            ScrollWrapper {
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 20) {
-
+                    VStack(alignment: .leading, spacing: 24) {
+                        
                         // Prompt card animada
                         PromptCard(prompt: prompt, moodScore: todayScore)
                             .staggered(0, base: 0)
@@ -43,14 +41,14 @@ struct JournalView: View {
                         VStack(alignment: .leading, spacing: 0) {
                             ZStack(alignment: .topLeading) {
                                 if text.isEmpty && !isEditing {
-                                    Text("Escribe libremente, sin censura…\n\nNo hay respuestas correctas o incorrectas.")
-                                        .font(.body)
-                                        .foregroundStyle(Color(.tertiaryLabel))
+                                    Text("Escribe libremente, sin censura…")
+                                        .font(.zenBody)
+                                        .foregroundStyle(Theme.sumiSoft.opacity(0.6))
                                         .padding(16)
                                         .onTapGesture { isEditing = true }
                                 }
                                 TextEditor(text: $text)
-                                    .font(.body)
+                                    .font(.zenBody)
                                     .lineSpacing(6)
                                     .frame(minHeight: 280)
                                     .scrollContentBackground(.hidden)
@@ -60,114 +58,68 @@ struct JournalView: View {
                                         wordCount = new.split(separator: " ").filter { !$0.isEmpty }.count
                                     }
                             }
-
-                            // Footer del editor
-                            Divider()
-                            HStack(spacing: 16) {
-                                Label("Solo en tu iPhone", systemImage: "lock.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(Theme.secondaryText)
+                            
+                            Divider().background(Theme.inkLine)
+                            
+                            HStack {
+                                Label("Privado", systemImage: "lock.fill")
+                                    .font(.zenCaption)
+                                    .foregroundStyle(Theme.sumiSoft)
                                 Spacer()
-                                // Word count con color según progreso
-                                HStack(spacing: 4) {
-                                    Text("\(wordCount)")
-                                        .font(.caption.bold())
-                                        .foregroundStyle(wordCountColor)
-                                        .contentTransition(.numericText())
-                                        .animation(.smooth, value: wordCount)
-                                    Text("palabras")
-                                        .font(.caption)
-                                        .foregroundStyle(Theme.secondaryText)
-                                }
-                                // Mic button
-                                Image(systemName: "mic.circle.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(Theme.accent)
+                                Text("\(wordCount) palabras")
+                                    .font(.zenCaption)
+                                    .foregroundStyle(wordCountColor)
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
+                            .padding(12)
                         }
-                        .background(Theme.cardBackground)
+                        .background(Theme.cardBackground.opacity(0.6))
                         .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius))
-                        .shadow(color: isEditing ? Theme.accent.opacity(0.12) : .black.opacity(0.05),
-                                radius: isEditing ? 16 : 10, y: 3)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Theme.cardRadius)
-                                .stroke(isEditing ? Theme.accent.opacity(0.3) : .clear, lineWidth: 1.5)
-                        )
-                        .animation(.smooth, value: isEditing)
+                        .overlay(RoundedRectangle(cornerRadius: Theme.cardRadius).stroke(Theme.inkLine, lineWidth: 0.5))
                         .staggered(1, base: 0)
 
-                        // Progress bar de escritura (meta: 100 palabras)
                         if wordCount > 0 {
                             WritingProgressBar(wordCount: wordCount, goal: 100)
                                 .transition(.move(edge: .top).combined(with: .opacity))
-                                .staggered(0, base: 0)
                         }
 
-                        // AI Summary card
                         if let summary = aiSummary {
                             AISummaryCard(summary: summary)
                                 .transition(.scale(scale: 0.95).combined(with: .opacity))
                         }
 
-                        Spacer(minLength: 100)
+                        Spacer(minLength: 120)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
-                    .animation(.springy, value: aiSummary != nil)
-                    .animation(.springy, value: wordCount > 0)
-                }
-
-                // Guardar flotante
-                if !isEmpty || isSummarizing {
-                    VStack(spacing: 0) {
-                        LinearGradient(colors: [Theme.background.opacity(0), Theme.background],
-                                       startPoint: .top, endPoint: .bottom)
-                        .frame(height: 32)
-
-                        Button {
-                            Haptics.impact(.medium)
-                            save()
-                        } label: {
-                            Group {
-                                if isSummarizing {
-                                    HStack(spacing: 10) {
-                                        ProgressView().tint(.white).scaleEffect(0.8)
-                                        Text("Generando resumen on-device…")
-                                    }
-                                } else {
-                                    Text("Guardar entrada")
-                                }
-                            }
-                            .primaryButton()
-                        }
-                        .pressEffect()
-                        .disabled(isSummarizing || isEmpty)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 24)
-                        .background(.ultraThinMaterial)
-                    }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
-            .animation(.springy, value: isEmpty)
             .navigationTitle("Diario")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancelar") { dismiss() }
-                }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Listo") { isEditing = false }
+                    Button("Cerrar") { dismiss() }
+                        .font(.zenHeadline)
                 }
             }
-            .confirmationDialog("¿Resumen on-device?", isPresented: $showSummaryPrompt, titleVisibility: .visible) {
-                Button("Sí, resumir en mi iPhone") { summarize() }
-                Button("No, guardar sin resumen", role: .cancel) { dismiss() }
-            } message: {
-                Text("El resumen se genera aquí. Nunca sale del dispositivo.")
+            // Botón de guardar flotante integrado en el pergamino
+            .safeAreaInset(edge: .bottom) {
+                if !isEmpty || isSummarizing {
+                    Button {
+                        Haptics.impact(.medium)
+                        save()
+                    } label: {
+                        Group {
+                            if isSummarizing {
+                                ProgressView().tint(.white)
+                            } else {
+                                Text("Guardar en el pergamino")
+                            }
+                        }
+                        .primaryButton()
+                    }
+                    .padding(20)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
         }
     }

@@ -29,83 +29,79 @@ struct TrendsView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
-                    Picker("Rango", selection: $selectedRange) {
-                        ForEach(TrendRange.allCases) { r in Text(r.label).tag(r) }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal, 20).padding(.top, 8)
-                    .onChange(of: selectedRange) { _, _ in
-                        chartProgress = 0
-                        withAnimation(.spring(duration: 1.0, bounce: 0.1).delay(0.1)) { chartProgress = 1 }
-                    }
-
-                    AnimatedAverageCard(average: average, count: filtered.count)
-                        .padding(.horizontal, 20)
-                        .staggered(0)
-
-                    MoodChartCard(entries: filtered, progress: chartProgress)
-                        .padding(.horizontal, 20)
-                        .staggered(1)
-
-                    // Insight
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "lightbulb.fill")
-                            .foregroundStyle(Theme.moodYellow)
-                            .font(.title3)
-                            .symbolEffect(.pulse)
-                        Text(insight)
-                            .font(.subheadline).foregroundStyle(Theme.textPrimary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .cardStyle()
-                    .padding(.horizontal, 20)
-                    .staggered(2)
-
-                    // Biométricos correlacionados
-                    if let snap = health.todaySnapshot {
-                        BiometricCorrelationCard(snap: snap, avgMood: average)
-                            .padding(.horizontal, 20)
-                            .staggered(3)
-                    }
-
-                    // Sleep en tendencia
-                    if let sleep = health.lastNightSleep {
-                        TrendSleepCard(summary: sleep)
-                            .padding(.horizontal, 20)
-                            .staggered(4)
-                    }
-
-                    // Temas on-device
-                    VStack(alignment: .leading, spacing: 14) {
-                        HStack {
-                            Text("Temas emergentes").font(.headline)
-                            Spacer()
-                            Label("On-device", systemImage: "brain")
-                                .font(.caption).foregroundStyle(Theme.secondaryText)
+            ScrollWrapper {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 24) {
+                        Picker("Rango", selection: $selectedRange) {
+                            ForEach(TrendRange.allCases) { r in Text(r.label).tag(r) }
                         }
-                        HStack(spacing: 10) {
-                            ForEach(Array(topics.enumerated()), id: \.offset) { i, topic in
-                                Text(topic)
-                                    .font(.subheadline.bold())
-                                    .padding(.horizontal, 16).padding(.vertical, 9)
-                                    .background(Theme.accent.opacity(0.1))
-                                    .foregroundStyle(Theme.accent)
-                                    .clipShape(Capsule())
-                                    .staggered(i, base: 0.4)
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal, 20).padding(.top, 24)
+                        .onChange(of: selectedRange) { _, _ in
+                            chartProgress = 0
+                            withAnimation(.spring(duration: 1.0, bounce: 0.1).delay(0.1)) { chartProgress = 1 }
+                        }
+
+                        AnimatedAverageCard(average: average, count: filtered.count)
+                            .padding(.horizontal, 20)
+                            .staggered(0)
+
+                        MoodChartCard(entries: filtered, progress: chartProgress)
+                            .padding(.horizontal, 20)
+                            .staggered(1)
+
+                        // Insight
+                        HStack(alignment: .top, spacing: 14) {
+                            Image(systemName: "lightbulb.fill")
+                                .foregroundStyle(Theme.tamago)
+                                .font(.title3)
+                            Text(insight)
+                                .font(.zenBody).foregroundStyle(Theme.sumi)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .cardStyle()
+                        .padding(.horizontal, 20)
+                        .staggered(2)
+
+                        // Biométricos correlacionados
+                        if let snap = health.todaySnapshot {
+                            BiometricCorrelationCard(snap: snap, avgMood: average)
+                                .padding(.horizontal, 20)
+                                .staggered(3)
+                        }
+
+                        // Sleep en tendencia
+                        if let sleep = health.lastNightSleep {
+                            TrendSleepCard(summary: sleep)
+                                .padding(.horizontal, 20)
+                                .staggered(4)
+                        }
+
+                        // Temas on-device
+                        VStack(alignment: .leading, spacing: 14) {
+                            zenSectionHeader(title: "Temas emergentes", subtitle: "Identificados por tu IA en local")
+                            
+                            HStack(spacing: 10) {
+                                ForEach(Array(topics.enumerated()), id: \.offset) { i, topic in
+                                    Text(topic)
+                                        .font(.zenCaption.bold())
+                                        .padding(.horizontal, 16).padding(.vertical, 9)
+                                        .background(Theme.accent.opacity(0.12))
+                                        .foregroundStyle(Theme.accent)
+                                        .clipShape(Capsule())
+                                        .staggered(i, base: 0.4)
+                                }
                             }
                         }
-                    }
-                    .cardStyle()
-                    .padding(.horizontal, 20)
-                    .staggered(3)
+                        .cardStyle()
+                        .padding(.horizontal, 20)
+                        .staggered(5)
 
-                    Spacer(minLength: 100)
+                        Spacer(minLength: 120)
+                    }
                 }
             }
-            .screenBackground()
-            .navigationTitle("Mi tendencia")
+            .navigationTitle("Tendencias")
         }
         .task { if health.todaySnapshot == nil { await health.fetchAll() } }
         .onAppear {

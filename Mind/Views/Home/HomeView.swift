@@ -105,7 +105,7 @@ private struct ZenTopProfileHeader: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Zenith")
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .font(.system(size: 18, weight: .semibold, design: .serif))
                     .foregroundStyle(Theme.textPrimary)
                     .minimumScaleFactor(0.8)
             }
@@ -172,7 +172,7 @@ private struct ZenSakuraHeroCard: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 Text("TU ENERGÍA HOY ✨")
-                    .font(.system(.caption2, design: .rounded).weight(.bold))
+                    .font(.system(.caption2, design: .serif).weight(.bold))
                     .foregroundStyle(Theme.ai)
                     .tracking(2)
                     .padding(.horizontal, 12)
@@ -180,21 +180,21 @@ private struct ZenSakuraHeroCard: View {
                     .background(.ultraThinMaterial, in: Capsule())
 
                 Text(greeting)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(size: 22, weight: .bold, design: .serif))
                     .foregroundStyle(Theme.sumi)
 
                 HStack {
                     Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)))
-                        .font(.system(.title3, design: .rounded))
+                        .font(.system(.title3, design: .serif))
                         .foregroundStyle(Theme.sumiSoft)
                     Spacer()
                     VStack(alignment: .trailing, spacing: 2) {
                         Text("MOOD STATUS")
-                            .font(.system(.caption2, design: .rounded).weight(.bold))
+                            .font(.system(.caption2, design: .serif).weight(.bold))
                             .tracking(1)
                             .foregroundStyle(Theme.sumiSoft.opacity(0.7))
                         Text(mood)
-                            .font(.system(.title2, design: .rounded).weight(.bold))
+                            .font(.system(.title2, design: .serif).weight(.bold))
                             .foregroundStyle(Theme.sumi)
                     }
                 }
@@ -203,8 +203,9 @@ private struct ZenSakuraHeroCard: View {
 
             HStack {
                 Spacer()
-                SakuraBlossom(tint: Theme.sakura.opacity(0.95), core: Theme.sakuraDeep, size: 28)
-                    .padding(16)
+                EnsoCircle(color: Theme.ai, lineWidth: 2)
+                    .frame(width: 32, height: 32)
+                    .padding(24)
             }
             .allowsHitTesting(false)
         }
@@ -237,10 +238,10 @@ private struct ZenDaySectionHeader: View {
         HStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Tu día")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.system(size: 20, weight: .bold, design: .serif))
                     .foregroundStyle(Theme.textPrimary)
                 Text("Resumen de tu bienestar actual")
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(Theme.secondaryText)
             }
             Spacer()
@@ -248,7 +249,7 @@ private struct ZenDaySectionHeader: View {
                 Image(systemName: "applewatch")
                 Text(watchText)
             }
-            .font(.system(.caption, design: .rounded).weight(.semibold))
+            .font(.system(.caption, design: .serif).weight(.semibold))
             .foregroundStyle(Theme.sumi)
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
@@ -279,7 +280,7 @@ private struct ZenMoodSnapshotCard: View {
                         .stroke(Theme.sumi, lineWidth: 2)
                         .frame(width: 66, height: 66)
                     Text(scoreText)
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.system(size: 22, weight: .bold, design: .serif))
                         .foregroundStyle(Theme.sumi)
                 }
 
@@ -292,18 +293,18 @@ private struct ZenMoodSnapshotCard: View {
 
             if entry == nil {
                 Text("Aún no registras tu estado de hoy. Haz tu check-in en menos de 10 segundos.")
-                    .font(.system(.body, design: .rounded))
+                    .font(.system(.body, design: .serif))
                     .foregroundStyle(Theme.secondaryText)
             }
 
             HStack(spacing: 28) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("CONTEXTO")
-                        .font(.system(.caption2, design: .rounded).weight(.bold))
+                        .font(.system(.caption2, design: .serif).weight(.bold))
                         .tracking(1.5)
                         .foregroundStyle(Theme.sumiSoft)
                     Text(contextText)
-                        .font(.system(.headline, design: .rounded).weight(.semibold))
+                        .font(.system(.headline, design: .serif).weight(.semibold))
                         .foregroundStyle(Theme.sumi)
                 }
 
@@ -313,11 +314,11 @@ private struct ZenMoodSnapshotCard: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("COMPAÑÍA")
-                        .font(.system(.caption2, design: .rounded).weight(.bold))
+                        .font(.system(.caption2, design: .serif).weight(.bold))
                         .tracking(1.5)
                         .foregroundStyle(Theme.sumiSoft)
                     Text(companyText)
-                        .font(.system(.headline, design: .rounded).weight(.semibold))
+                        .font(.system(.headline, design: .serif).weight(.semibold))
                         .foregroundStyle(Theme.sumi)
                 }
             }
@@ -325,12 +326,12 @@ private struct ZenMoodSnapshotCard: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("ENERGÍA")
-                        .font(.system(.caption2, design: .rounded).weight(.bold))
+                        .font(.system(.caption2, design: .serif).weight(.bold))
                         .tracking(1.5)
                         .foregroundStyle(Theme.sumi)
                     Spacer()
                     Text("\(Int(energy * 100))%")
-                        .font(.system(.caption, design: .rounded).weight(.bold))
+                        .font(.system(.caption, design: .serif).weight(.bold))
                         .foregroundStyle(Theme.sumi)
                 }
 
@@ -348,7 +349,7 @@ private struct ZenMoodSnapshotCard: View {
             if entry == nil {
                 Button(action: { Haptics.impact(.medium); onCheckin() }) {
                     Text("Registrar check-in")
-                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .font(.system(.subheadline, design: .serif).weight(.bold))
                         .tracking(1.6)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -417,11 +418,11 @@ private struct ZenJournalCTA: View {
                     }
 
                     Text("Escribir en el diario")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(size: 16, weight: .bold, design: .serif))
                         .foregroundStyle(.white)
 
                     Text("Reflexiona sobre tu día. Nuestro sistema de IA resumirá tus pensamientos para encontrar patrones en tu bienestar emocional.")
-                        .font(.system(.body, design: .rounded))
+                        .font(.system(.body, design: .serif))
                         .foregroundStyle(.white.opacity(0.75))
                         .multilineTextAlignment(.leading)
                 }
@@ -447,18 +448,18 @@ private struct ZenMindfulPauseCard: View {
                 .background(Theme.kinari.opacity(0.55), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
 
             Text("Pausa consciente")
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.system(size: 16, weight: .bold, design: .serif))
                 .foregroundStyle(Theme.textPrimary)
 
             Text("Tómate un momento para respirar. Has estado activo durante 4 horas seguidas.")
-                .font(.system(.body, design: .rounded))
+                .font(.system(.body, design: .serif))
                 .foregroundStyle(Theme.secondaryText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
 
             Button(action: { Haptics.impact(.light); action() }) {
                 Text("INICIAR SESIÓN")
-                    .font(.system(.subheadline, design: .rounded).weight(.bold))
+                    .font(.system(.subheadline, design: .serif).weight(.bold))
                     .tracking(2.2)
                     .foregroundStyle(Theme.sumi)
                     .padding(.horizontal, 30)
@@ -499,29 +500,25 @@ struct HeroHeader: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Fondo: gradiente atardecer sakura
-            SakuraSkyBackground(score: score)
+            // Fondo: gradiente de niebla zen
+            ZenSkyBackground(score: score)
                 .frame(height: 310)
 
             // Seigaiha muy sutil detrás
-            SeigaihaPattern(color: .white, opacity: 0.15, scale: 40)
+            SeigaihaPattern(color: .white, opacity: 0.12, scale: 40)
                 .frame(height: 310)
                 .allowsHitTesting(false)
 
-            // Lluvia de pétalos de sakura
-            SakuraRain(petalCount: 16)
-                .frame(height: 310)
-
-            // Montaña Fuji estilizada al fondo
+            // Montaña Fuji estilizada al fondo (más prominente para balancear)
             FujiSilhouette()
                 .fill(
                     LinearGradient(
-                        colors: [Theme.sumi.opacity(0.28), Theme.sumi.opacity(0.12)],
+                        colors: [Theme.ai.opacity(0.15), Theme.ai.opacity(0.05)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
-                .frame(height: 120)
+                .frame(height: 140)
                 .frame(maxWidth: .infinity)
                 .offset(y: 55)
                 .allowsHitTesting(false)
@@ -538,7 +535,7 @@ struct HeroHeader: View {
                             .animation(.smooth.delay(0.2), value: appeared)
 
                         Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)))
-                            .font(.system(.caption2, design: .rounded).weight(.medium))
+                            .font(.system(.caption2, design: .serif).weight(.medium))
                             .foregroundStyle(.white.opacity(0.78))
                             .opacity(appeared ? 1 : 0)
                             .offset(y: appeared ? 0 : 8)
@@ -558,7 +555,7 @@ struct HeroHeader: View {
                                 .fill(entry == nil ? Theme.tamago : Theme.matcha)
                                 .frame(width: 6, height: 6)
                             Text(statusText)
-                                .font(.system(.caption, design: .rounded).weight(.semibold))
+                                .font(.system(.caption, design: .serif).weight(.semibold))
                                 .foregroundStyle(.white)
                         }
                         .padding(.horizontal, 12)
@@ -606,18 +603,18 @@ struct HeroHeader: View {
     }
 }
 
-// MARK: — Cielo sakura degradado según mood
+// MARK: — Cielo Zen degradado según mood (Estética Niebla y Montaña)
 
-struct SakuraSkyBackground: View {
+struct ZenSkyBackground: View {
     let score: Int
 
     private var colors: [Color] {
         switch score {
-        case 0...2: return [Color(hex: "#2E2740"), Color(hex: "#6D4F73"), Color(hex: "#A97A93")] // noche fuji
-        case 3...4: return [Color(hex: "#3E617A"), Color(hex: "#8BAEC5"), Color(hex: "#D8B8B8")] // lluvia tenue
-        case 5...6: return [Color(hex: "#E9CFCB"), Color(hex: "#F3B8C2"), Color(hex: "#D98A92")] // sakura clásico
-        case 7...8: return [Color(hex: "#F4D6A5"), Color(hex: "#F0B28E"), Color(hex: "#D98A92")] // atardecer cálido
-        default:    return [Color(hex: "#F6C99F"), Color(hex: "#EF9B87"), Color(hex: "#C65F64")] // atardecer intenso
+        case 0...2: return [Color(hex: "#1F2933"), Color(hex: "#3E4C59"), Color(hex: "#52606D")] // Noche profunda
+        case 3...4: return [Color(hex: "#323F4B"), Color(hex: "#3E617A"), Color(hex: "#8BAEC5")] // Lluvia/Niebla
+        case 5...6: return [Color(hex: "#E5E9F0"), Color(hex: "#B8C1CC"), Color(hex: "#9EABB3")] // Nublado Zen
+        case 7...8: return [Color(hex: "#CBD5E0"), Color(hex: "#A0AEC0"), Color(hex: "#718096")] // Tarde despejada
+        default:    return [Color(hex: "#6E9BB0"), Color(hex: "#81E6D9"), Color(hex: "#BEE3F8")] // Aire puro/Felicidad
         }
     }
 
@@ -690,22 +687,23 @@ struct CheckinBanner: View {
             HStack(spacing: 16) {
                 ZStack {
                     Circle()
-                        .fill(Theme.sakura.opacity(0.4))
+                        .fill(Theme.ai.opacity(0.1))
                         .frame(width: 62, height: 62)
                     Circle()
-                        .stroke(Theme.sakuraDeep.opacity(0.35), lineWidth: 1.2)
+                        .stroke(Theme.ai.opacity(0.3), lineWidth: 1.2)
                         .frame(width: 62, height: 62)
                         .scaleEffect(pulse ? 1.3 : 1)
                         .opacity(pulse ? 0 : 1)
                         .animation(.easeOut(duration: 1.6).repeatForever(autoreverses: false), value: pulse)
-                    SakuraBlossom(tint: Theme.sakura, core: Theme.sakuraDeep, size: 34)
+                    EnsoCircle(color: Theme.ai, lineWidth: 2)
+                        .frame(width: 28, height: 28)
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Check-in de ánimo")
                         .font(.system(.headline, design: .serif).weight(.semibold))
                         .foregroundStyle(Theme.textPrimary)
                     Text("10 segundos · registra cómo estás ahora")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(Theme.secondaryText)
                 }
                 Spacer()
@@ -756,7 +754,7 @@ struct TodayMoodCard: View {
                         Label(entry.context.rawValue, systemImage: entry.context.icon)
                         Label(entry.company.rawValue, systemImage: entry.company.icon)
                     }
-                    .font(.system(.caption, design: .rounded))
+                    .font(.system(.caption, design: .serif))
                     .foregroundStyle(Theme.secondaryText)
                 }
                 Spacer()
@@ -768,11 +766,11 @@ struct TodayMoodCard: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("Energía")
-                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .font(.system(.caption, design: .serif).weight(.semibold))
                         .foregroundStyle(Theme.secondaryText)
                     Spacer()
                     Text("\(Int(entry.energy * 100))%")
-                        .font(.system(.caption, design: .rounded).weight(.bold))
+                        .font(.system(.caption, design: .serif).weight(.bold))
                         .foregroundStyle(entry.score.moodColor)
                         .contentTransition(.numericText())
                 }
@@ -792,7 +790,7 @@ struct TodayMoodCard: View {
 
             Button(action: { Haptics.selection(); onCheckin() }) {
                 Label("Actualizar check-in", systemImage: "arrow.clockwise")
-                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .font(.system(.caption, design: .serif).weight(.semibold))
                     .foregroundStyle(Theme.sakuraDeep)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -835,7 +833,7 @@ struct JournalCard: View {
                             .foregroundStyle(Theme.matchaDeep)
                     }
                     Text("Exprésate · tu IA lo resume con delicadeza")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(Theme.secondaryText)
                 }
                 Spacer()
@@ -869,10 +867,10 @@ struct AppointmentBanner: View {
                         .font(.system(.headline, design: .serif).weight(.semibold))
                         .foregroundStyle(Theme.textPrimary)
                     Text(appointment.formattedDate)
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(Theme.secondaryText)
                     Text("Preparar sesión →")
-                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .font(.system(.caption, design: .serif).weight(.semibold))
                         .foregroundStyle(Theme.asagi)
                 }
                 Spacer()
@@ -925,11 +923,11 @@ struct HomeSleepCard: View {
                 }
                 HStack(spacing: 8) {
                     Text(summary.quality.rawValue)
-                        .font(.system(.caption, design: .rounded).weight(.bold))
+                        .font(.system(.caption, design: .serif).weight(.bold))
                         .foregroundStyle(qualityColor)
                     Text("·").foregroundStyle(Theme.secondaryText)
                     Text("Prof \(summary.formattedDeep) · REM \(summary.formattedREM)")
-                        .font(.system(.caption, design: .rounded))
+                        .font(.system(.caption, design: .serif))
                         .foregroundStyle(Theme.secondaryText)
                 }
             }
@@ -961,7 +959,7 @@ struct WatchBiometricsCard: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 Label("Apple Watch · en vivo", systemImage: "applewatch")
-                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .font(.system(.caption, design: .serif).weight(.semibold))
                     .foregroundStyle(Theme.secondaryText)
                 Spacer()
                 Circle()
@@ -983,14 +981,14 @@ struct WatchBiometricsCard: View {
 
             HStack(spacing: 8) {
                 Text("Estrés estimado:")
-                    .font(.system(.caption, design: .rounded))
+                    .font(.system(.caption, design: .serif))
                     .foregroundStyle(Theme.secondaryText)
                 Text(service.latestStressLevel)
-                    .font(.system(.caption, design: .rounded).weight(.bold))
+                    .font(.system(.caption, design: .serif).weight(.bold))
                     .foregroundStyle(stressColor)
                 Spacer()
                 Text("\(service.latestSteps) pasos hoy")
-                    .font(.system(.caption, design: .rounded))
+                    .font(.system(.caption, design: .serif))
                     .foregroundStyle(Theme.secondaryText)
             }
         }
@@ -1036,13 +1034,13 @@ struct WatchBridgeHubCard: View {
                 HStack(spacing: 6) {
                     Circle().fill(statusColor).frame(width: 8, height: 8)
                     Text(statusText)
-                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .font(.system(.caption, design: .serif).weight(.semibold))
                         .foregroundStyle(statusColor)
                 }
             }
 
             Text(lastSyncText)
-                .font(.system(.caption, design: .rounded))
+                .font(.system(.caption, design: .serif))
                 .foregroundStyle(Theme.secondaryText)
 
             HStack(spacing: 10) {
@@ -1070,7 +1068,7 @@ struct WatchBridgeHubCard: View {
                         }
                         Text(service.isRequestingLiveSync ? "Sincronizando..." : "Sincronizar")
                     }
-                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .font(.system(.caption, design: .serif).weight(.semibold))
                     .foregroundStyle(Theme.sakuraDeep)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -1091,7 +1089,7 @@ struct WatchBridgeHubCard: View {
                         Image(systemName: "face.smiling")
                         Text("Pedir check-in")
                     }
-                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .font(.system(.caption, design: .serif).weight(.semibold))
                     .foregroundStyle(Theme.matchaDeep)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -1107,12 +1105,12 @@ struct WatchBridgeHubCard: View {
 
             HStack {
                 Text(service.watchActionMessage)
-                    .font(.system(.caption, design: .rounded))
+                    .font(.system(.caption, design: .serif))
                     .foregroundStyle(Theme.secondaryText)
                 Spacer()
                 if let battery = service.watchBatteryLevel {
                     Label("\(battery)%", systemImage: "battery.75")
-                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .font(.system(.caption, design: .serif).weight(.semibold))
                         .foregroundStyle(Theme.secondaryText)
                 }
             }
@@ -1133,12 +1131,12 @@ struct BiometricPill: View {
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(color)
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.system(size: 16, weight: .bold, design: .serif))
                 .foregroundStyle(Theme.textPrimary)
                 .contentTransition(.numericText())
                 .animation(.smooth, value: value)
             Text(unit)
-                .font(.system(.caption2, design: .rounded))
+                .font(.system(.caption2, design: .serif))
                 .foregroundStyle(Theme.secondaryText)
         }
         .frame(maxWidth: .infinity)
@@ -1178,7 +1176,7 @@ struct QuestionnaireCard: View {
                             .foregroundStyle(Theme.accentPurple)
                     }
                     Text("Cuestionarios semanales · 2 min")
-                        .font(.system(.caption, design: .rounded))
+                        .font(.system(.caption, design: .serif))
                         .foregroundStyle(Theme.secondaryText)
                 }
                 Spacer()
@@ -1220,11 +1218,11 @@ struct StreakCard: View {
                         .foregroundStyle(Theme.textPrimary)
                         .contentTransition(.numericText(countsDown: false))
                     Text("registros totales")
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.subheadline, design: .serif))
                         .foregroundStyle(Theme.textPrimary)
                 }
                 Text("Cada pétalo cuenta · sigue así 🌸")
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline, design: .serif))
                     .foregroundStyle(Theme.secondaryText)
             }
             Spacer()

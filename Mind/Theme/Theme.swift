@@ -40,14 +40,14 @@ enum Theme {
     static let kincha        = Color(hex: "#C9A25B")
 
     // MARK: — Roles semánticos (compat con vistas existentes)
-    static let accent        = sakuraDeep         // acción primaria · rosa cerezo
-    static let accentSoft    = sakura
+    static let accent        = ai                 // acción primaria · índigo profundo
+    static let accentSoft    = asagi
     static let secondary     = matcha
     static let background    = washi
     static let textPrimary   = sumi
     static let crisisRed     = aka
-    static let accentPurple  = Color(hex: "#8E6E99") // fuji · glicina
-    static let accentPink    = sakuraDeep
+    static let accentPurple  = Color(hex: "#5A506A") // koki-purpur · púrpura oscuro
+    static let accentPink    = sango              // coral tierra en lugar de rosa
     static let accentMint    = matcha
 
     // MARK: — Mood spectrum (reinterpretado con paleta japonesa)
@@ -81,23 +81,24 @@ enum Theme {
         endPoint: .bottomTrailing
     )
 
-    /// Gradiente hero por defecto: atardecer sobre cerezos
+    /// Gradiente hero por defecto: niebla sobre montañas (índigo y asagi)
     static let heroGradient = LinearGradient(
         colors: [
-            Color(hex: "#F6D9C9"),
-            Color(hex: "#EFB0B8"),
-            Color(hex: "#B98095")
+            Color(hex: "#4A5D6B"),
+            Color(hex: "#6E9BB0"),
+            Color(hex: "#A8C09A")
         ],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
 
-    /// Gradiente matcha (bienestar)
-    static let matchaGradient = LinearGradient(
-        colors: [Color(hex: "#BFD3A8"), Color(hex: "#7D9E6E")],
+    /// Gradiente principal (reemplaza al sakura)
+    static let primaryGradient = LinearGradient(
+        colors: [Color(hex: "#3E5A72"), Color(hex: "#2E4A5F")],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
+
 
     /// Gradiente sakura (acción primaria)
     static let sakuraGradient = LinearGradient(
@@ -117,17 +118,17 @@ enum Theme {
     static var ambientBackground: some View {
         ZStack {
             appBackground.ignoresSafeArea()
-            // Viñeta cálida superior
+            // Viñeta superior fría (niebla)
             RadialGradient(
-                colors: [sakura.opacity(0.35), .clear],
+                colors: [asagi.opacity(0.2), .clear],
                 center: .topLeading,
                 startRadius: 10,
                 endRadius: 420
             )
             .ignoresSafeArea()
-            // Toque matcha en la esquina inferior
+            // Toque tierra/ámbar en la esquina inferior
             RadialGradient(
-                colors: [matcha.opacity(0.22), .clear],
+                colors: [kohaku.opacity(0.15), .clear],
                 center: .bottomTrailing,
                 startRadius: 10,
                 endRadius: 420
@@ -219,19 +220,13 @@ extension View {
     }
 
     /// Botón principal: sello japonés estilo hanko con gradiente sakura y sombra cálida.
-    func primaryButton(color: Color = Theme.sakuraDeep) -> some View {
+    func primaryButton(color: Color = Theme.ai) -> some View {
         self
-            .font(.system(.headline, design: .rounded).weight(.semibold))
+            .font(.system(.headline, design: .serif).weight(.semibold))
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(
-                LinearGradient(
-                    colors: [color.opacity(0.95), color.opacity(0.78)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
+            .background(Theme.primaryGradient)
             .clipShape(RoundedRectangle(cornerRadius: Theme.buttonRadius, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.buttonRadius, style: .continuous)
@@ -262,9 +257,25 @@ extension View {
             )
     }
 
-    /// Fondo global de la app (pergamino washi con viñeteo sakura y matcha).
+    /// Fondo global de la app (pergamino washi con viñeteo asagi y kohaku).
     func screenBackground() -> some View {
         self.background(Theme.ambientBackground)
+    }
+
+    /// Título de sección Zen con estilo uniforme
+    func zenSectionHeader(title: String, subtitle: String? = nil) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.zenHeadline)
+                .foregroundStyle(Theme.sumi)
+            if let subtitle = subtitle {
+                Text(subtitle)
+                    .font(.zenCaption)
+                    .foregroundStyle(Theme.sumiSoft)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 4)
     }
 
     /// Etiqueta tipo 印 (hanko · sello rojo).
@@ -279,6 +290,27 @@ extension View {
                 RoundedRectangle(cornerRadius: 4)
                     .stroke(.white.opacity(0.3), lineWidth: 0.5)
             )
+    }
+}
+
+// MARK: — Reusable Components
+
+struct ZenSkyView: View {
+    let score: Int
+
+    private var colors: [Color] {
+        switch score {
+        case 0...2: return [Color(hex: "#1F2933"), Color(hex: "#3E4C59"), Color(hex: "#52606D")]
+        case 3...4: return [Color(hex: "#323F4B"), Color(hex: "#3E617A"), Color(hex: "#8BAEC5")]
+        case 5...6: return [Color(hex: "#E5E9F0"), Color(hex: "#B8C1CC"), Color(hex: "#9EABB3")]
+        case 7...8: return [Color(hex: "#CBD5E0"), Color(hex: "#A0AEC0"), Color(hex: "#718096")]
+        default:    return [Color(hex: "#6E9BB0"), Color(hex: "#81E6D9"), Color(hex: "#BEE3F8")]
+        }
+    }
+
+    var body: some View {
+        LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+            .overlay(Circle().fill(.white.opacity(0.2)).frame(width: 100).blur(radius: 20).offset(x: -80, y: -60))
     }
 }
 
@@ -346,12 +378,12 @@ extension Color {
 // MARK: — Tipografía zen (helpers)
 
 extension Font {
-    /// Título grande caligráfico (usa rounded serif-feel)
+    /// Título grande caligráfico
     static var zenTitle: Font { .system(.largeTitle, design: .serif).weight(.semibold) }
     /// Subtítulo zen
-    static var zenHeadline: Font { .system(.headline, design: .rounded).weight(.semibold) }
+    static var zenHeadline: Font { .system(.headline, design: .serif).weight(.semibold) }
     /// Cuerpo zen
-    static var zenBody: Font { .system(.body, design: .rounded) }
+    static var zenBody: Font { .system(.body, design: .serif) }
     /// Etiqueta pequeña
-    static var zenCaption: Font { .system(.caption, design: .rounded).weight(.medium) }
+    static var zenCaption: Font { .system(.caption, design: .serif).weight(.medium) }
 }
