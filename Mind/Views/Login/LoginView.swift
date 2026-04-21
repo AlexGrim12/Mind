@@ -14,192 +14,123 @@ struct LoginView: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [
-                    Color(red: 0.06, green: 0.06, blue: 0.14),
-                    Color(red: 0.10, green: 0.08, blue: 0.20)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Fondo global zen
+            Theme.ambientBackground.ignoresSafeArea()
+            
+            // Lluvia de pétalos sutil
+            SakuraRain(petalCount: 12)
+                .opacity(0.4)
 
             VStack(spacing: 0) {
                 Spacer()
 
-                // MARK: Brand header
-                VStack(spacing: 14) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.indigo.opacity(0.18))
-                            .frame(width: 96, height: 96)
-                        Circle()
-                            .stroke(Color.indigo.opacity(0.35), lineWidth: 1)
-                            .frame(width: 96, height: 96)
-                        Image(systemName: "brain.filled.head.profile")
-                            .font(.system(size: 42, weight: .medium))
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [Color.indigo, Color.purple],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                    }
-                    VStack(spacing: 4) {
-                        Text("MIND-LINK")
-                            .font(.system(size: 30, weight: .black, design: .rounded))
-                            .foregroundStyle(.white)
-                        Text("Sistema de Bienestar Universitario")
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.45))
-                            .multilineTextAlignment(.center)
-                    }
+                // MARK: Brand header (Estilo Zen)
+                VStack(spacing: 20) {
+                    ToriiHeader(
+                        title: "MIND-LINK",
+                        subtitle: "Sistema de Bienestar Universitario",
+                        kanji: "心"
+                    )
+                    
+                    HankoStamp(kanji: "開", color: Theme.ai, size: 48)
+                        .padding(.top, 10)
                 }
                 .padding(.bottom, 44)
 
-                // MARK: Form card
-                VStack(spacing: 20) {
+                // MARK: Form card (Estilo Washi)
+                VStack(spacing: 24) {
                     // Username field
-                    VStack(alignment: .leading, spacing: 7) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text("MATRÍCULA / CÉDULA")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.5))
-                            .tracking(1.0)
+                            .font(.system(size: 10, weight: .bold, design: .serif))
+                            .foregroundStyle(Theme.sumiSoft)
+                            .tracking(1.5)
 
-                        HStack(spacing: 14) {
-                            Image(systemName: "person.fill")
+                        HStack(spacing: 12) {
+                            Image(systemName: "person")
                                 .font(.system(size: 16))
-                                .foregroundStyle(focusedField == .username ? Color.indigo : Color.white.opacity(0.4))
-                                .frame(width: 22)
-                                .animation(.easeInOut(duration: 0.2), value: focusedField)
+                                .foregroundStyle(focusedField == .username ? Theme.ai : Theme.sumiSoft)
 
                             TextField("Ingresa tu usuario", text: $username)
                                 .focused($focusedField, equals: .username)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
-                                .foregroundStyle(.white)
-                                .tint(Color.indigo)
+                                .foregroundStyle(Theme.sumi)
+                                .tint(Theme.ai)
                                 .onSubmit { focusedField = .password }
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 15)
-                        .background(.white.opacity(0.07))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(
-                                    focusedField == .username ? Color.indigo : Color.white.opacity(0.1),
-                                    lineWidth: focusedField == .username ? 1.5 : 1
-                                )
-                        )
-                        .animation(.easeInOut(duration: 0.2), value: focusedField)
+                        .padding(.vertical, 12)
+                        .overlay(Rectangle().frame(height: 1).foregroundStyle(Theme.inkLine), alignment: .bottom)
                     }
 
                     // Password field
-                    VStack(alignment: .leading, spacing: 7) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text("CONTRASEÑA")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.5))
-                            .tracking(1.0)
+                            .font(.system(size: 10, weight: .bold, design: .serif))
+                            .foregroundStyle(Theme.sumiSoft)
+                            .tracking(1.5)
 
-                        HStack(spacing: 14) {
-                            Image(systemName: "lock.fill")
+                        HStack(spacing: 12) {
+                            Image(systemName: "lock")
                                 .font(.system(size: 16))
-                                .foregroundStyle(focusedField == .password ? Color.indigo : Color.white.opacity(0.4))
-                                .frame(width: 22)
-                                .animation(.easeInOut(duration: 0.2), value: focusedField)
+                                .foregroundStyle(focusedField == .password ? Theme.ai : Theme.sumiSoft)
 
                             SecureField("Ingresa tu contraseña", text: $password)
                                 .focused($focusedField, equals: .password)
-                                .foregroundStyle(.white)
-                                .tint(Color.indigo)
+                                .foregroundStyle(Theme.sumi)
+                                .tint(Theme.ai)
                                 .onSubmit { attemptLogin() }
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 15)
-                        .background(.white.opacity(0.07))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(
-                                    focusedField == .password ? Color.indigo : Color.white.opacity(0.1),
-                                    lineWidth: focusedField == .password ? 1.5 : 1
-                                )
-                        )
-                        .animation(.easeInOut(duration: 0.2), value: focusedField)
+                        .padding(.vertical, 12)
+                        .overlay(Rectangle().frame(height: 1).foregroundStyle(Theme.inkLine), alignment: .bottom)
                     }
 
                     // Error message
                     if showError {
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.circle.fill")
-                                .font(.subheadline)
-                            Text("Credenciales incorrectas. Inténtalo de nuevo.")
-                                .font(.subheadline)
+                            Text("Credenciales incorrectas")
                         }
-                        .foregroundStyle(.red)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .transition(.scale(scale: 0.95).combined(with: .opacity))
+                        .font(.caption)
+                        .foregroundStyle(Theme.aka)
+                        .transition(.opacity)
                     }
 
-                    // Login button
+                    // Login button (Estilo Hanko/Zen)
                     Button(action: attemptLogin) {
                         ZStack {
-                            LinearGradient(
-                                colors: [Color.indigo, Color(red: 0.5, green: 0.2, blue: 0.8)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
-
                             if isLoading {
-                                ProgressView()
-                                    .tint(.white)
-                                    .scaleEffect(1.1)
+                                ProgressView().tint(.white)
                             } else {
-                                HStack(spacing: 10) {
-                                    Text("Iniciar Sesión")
-                                        .font(.system(size: 16, weight: .bold))
-                                    Image(systemName: "arrow.right.circle.fill")
-                                        .font(.system(size: 16))
-                                }
-                                .foregroundStyle(.white)
+                                Text("Entrar")
                             }
                         }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .shadow(color: Color.indigo.opacity(0.45), radius: 14, x: 0, y: 7)
+                        .primaryButton()
                     }
                     .disabled(username.isEmpty || password.isEmpty || isLoading)
-                    .opacity((username.isEmpty || password.isEmpty) ? 0.55 : 1.0)
-                    .animation(.easeInOut(duration: 0.2), value: username.isEmpty || password.isEmpty)
-                    .padding(.top, 4)
+                    .opacity((username.isEmpty || password.isEmpty) ? 0.6 : 1.0)
                 }
-                .padding(24)
-                .background(.white.opacity(0.05))
-                .clipShape(RoundedRectangle(cornerRadius: 24))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(.white.opacity(0.09), lineWidth: 1)
-                )
+                .cardStyle()
                 .padding(.horizontal, 24)
 
                 Spacer()
 
                 // Footer
-                VStack(spacing: 6) {
-                    Label("Portal seguro · Datos locales", systemImage: "lock.shield.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.25))
+                VStack(spacing: 8) {
+                    HStack(spacing: 6) {
+                        EnsoCircle(color: Theme.sumiSoft, lineWidth: 1)
+                            .frame(width: 14, height: 14)
+                        Text("Portal seguro · Datos locales")
+                            .font(.system(.caption2, design: .serif))
+                            .foregroundStyle(Theme.sumiSoft)
+                    }
                     Text("UANL · MIND-LINK v1.0")
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.18))
+                        .font(.system(.caption2, design: .serif))
+                        .foregroundStyle(Theme.sumiSoft.opacity(0.6))
                 }
                 .padding(.bottom, 36)
             }
         }
-        .animation(.smooth, value: showError)
         .contentShape(Rectangle())
         .onTapGesture { focusedField = nil }
     }
@@ -210,8 +141,8 @@ struct LoginView: View {
         isLoading = true
         showError = false
 
-        // Simulated auth: "doctor" → clinician role, anyone else → patient role
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+        // Simulated auth
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
             isLoading = false
             userRole = username.lowercased() == "doctor" ? "doctor" : "patient"
             isLoggedIn = true

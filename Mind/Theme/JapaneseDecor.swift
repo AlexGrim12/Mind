@@ -305,6 +305,129 @@ struct EnsoCircle: View {
     }
 }
 
+// MARK: — ☁️ Nubes Zen (estilo Sumi-e)
+
+struct ZenCloud: View {
+    @State private var offset: CGFloat = 0
+    let duration: Double = Double.random(in: 40...60)
+    let size: CGFloat = CGFloat.random(in: 100...200)
+
+    var body: some View {
+        Canvas { ctx, size in
+            let rect = CGRect(origin: .zero, size: size)
+            var path = Path()
+            path.addEllipse(in: CGRect(x: size.width * 0.2, y: size.height * 0.2, width: size.width * 0.4, height: size.height * 0.6))
+            path.addEllipse(in: CGRect(x: size.width * 0.4, y: size.height * 0.1, width: size.width * 0.5, height: size.height * 0.8))
+            path.addEllipse(in: CGRect(x: size.width * 0.1, y: size.height * 0.3, width: size.width * 0.3, height: size.height * 0.5))
+            
+            ctx.fill(path, with: .color(Color.white.opacity(0.15)))
+            ctx.addFilter(.blur(radius: 12))
+        }
+        .frame(width: size, height: size * 0.6)
+        .offset(x: offset)
+        .onAppear {
+            offset = -200
+            withAnimation(.linear(duration: duration).repeatForever(autoreverses: false)) {
+                offset = 600
+            }
+        }
+    }
+}
+
+// MARK: — 🎋 Bosque de Bambú (Bambú animado)
+
+struct BambooGrove: View {
+    var body: some View {
+        ZStack {
+            ForEach(0..<6) { i in
+                BambooStalk()
+                    .offset(x: CGFloat(i * 60) - 150, y: 100)
+                    .rotationEffect(.degrees(Double(i) * 2 - 5))
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+struct BambooStalk: View {
+    @State private var sway = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(0..<8) { _ in
+                ZStack(alignment: .bottom) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Theme.matcha.opacity(0.15))
+                        .frame(width: 8, height: 40)
+                    Rectangle()
+                        .fill(Theme.matchaDeep.opacity(0.1))
+                        .frame(width: 10, height: 2)
+                }
+            }
+        }
+        .rotationEffect(.degrees(sway ? 2 : -2), anchor: .bottom)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
+                sway = true
+            }
+        }
+    }
+}
+
+// MARK: — 🏖️ Jardín Zen (Arena rastrillada)
+
+struct RakedSandPattern: View {
+    var color: Color = Theme.kohaku
+    var opacity: Double = 0.2
+    
+    var body: some View {
+        Canvas { ctx, size in
+            let spacing: CGFloat = 12
+            var y: CGFloat = 0
+            while y < size.height {
+                var p = Path()
+                p.move(to: CGPoint(x: 0, y: y))
+                for x in stride(from: 0, to: size.width, by: 20) {
+                    let relativeX = x / 20
+                    let sine = sin(relativeX * 0.5) * 2
+                    p.addLine(to: CGPoint(x: x, y: y + sine))
+                }
+                ctx.stroke(p, with: .color(color.opacity(opacity)), lineWidth: 1)
+                y += spacing
+            }
+        }
+    }
+}
+
+// MARK: — 🏯 Pagoda sutil (Icono vectorial)
+
+struct PagodaIcon: View {
+    var color: Color = Theme.sumi
+    var body: some View {
+        Canvas { ctx, size in
+            let w = size.width
+            let h = size.height
+            var p = Path()
+            
+            // Base
+            p.addRect(CGRect(x: w * 0.2, y: h * 0.8, width: w * 0.6, height: h * 0.1))
+            
+            // Niveles
+            for i in 0..<3 {
+                let y = h * (0.6 - CGFloat(i) * 0.2)
+                let width = w * (0.5 - CGFloat(i) * 0.1)
+                p.move(to: CGPoint(x: w * 0.5 - width, y: y + h * 0.1))
+                p.addQuadCurve(to: CGPoint(x: w * 0.5 + width, y: y + h * 0.1), control: CGPoint(x: w * 0.5, y: y + h * 0.05))
+                p.addLine(to: CGPoint(x: w * 0.5 + width * 0.7, y: y))
+                p.addLine(to: CGPoint(x: w * 0.5 - width * 0.7, y: y))
+                p.closeSubpath()
+            }
+            
+            ctx.fill(p, with: .color(color.opacity(0.7)))
+        }
+    }
+}
+
 // MARK: — 🌸 Fondo de sección (marco de sakura + washi)
 
 struct WashiSection<Content: View>: View {
@@ -476,5 +599,43 @@ struct FloatingSparkles: View {
             .onAppear { animate = true }
         }
         .allowsHitTesting(false)
+    }
+}
+
+// MARK: — 🧩 FlowLayout Helper
+
+/// Un layout que organiza sus hijos en filas, saltando a la siguiente cuando no hay espacio.
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = subviews.reduce(into: (width: CGFloat(0), height: CGFloat(0), currentX: CGFloat(0), currentY: CGFloat(0), maxHeight: CGFloat(0))) { res, subview in
+            let size = subview.sizeThatFits(.unspecified)
+            if res.currentX + size.width > (proposal.width ?? .infinity) {
+                res.currentX = 0
+                res.currentY += res.maxHeight + spacing
+                res.maxHeight = 0
+            }
+            res.currentX += size.width + spacing
+            res.maxHeight = max(res.maxHeight, size.height)
+            res.width = max(res.width, res.currentX)
+            res.height = max(res.height, res.currentY + res.maxHeight)
+        }
+        return CGSize(width: result.width, height: result.height)
+    }
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var currentX = bounds.minX
+        var currentY = bounds.minY
+        var maxHeight: CGFloat = 0
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if currentX + size.width > bounds.maxX {
+                currentX = bounds.minX
+                currentY += maxHeight + spacing
+                maxHeight = 0
+            }
+            subview.place(at: CGPoint(x: currentX, y: currentY), proposal: .unspecified)
+            currentX += size.width + spacing
+            maxHeight = max(maxHeight, size.height)
+        }
     }
 }

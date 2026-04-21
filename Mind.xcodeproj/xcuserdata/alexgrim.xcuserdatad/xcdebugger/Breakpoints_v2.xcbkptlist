@@ -18,6 +18,36 @@
             endingLineNumber = "4"
             landmarkName = "MoodCheckinView"
             landmarkType = "14">
+            <Locations>
+               <Location
+                  uuid = "47886937-F2B5-4DD3-9579-6D64F019362B - 5f1ded86e7a651fa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Mind.MoodCheckinView.init() -&gt; Mind.MoodCheckinView"
+                  moduleName = "Mind.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/alexgrim/hackios/Mind/Mind/Views/MoodCheckin/MoodCheckinView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "5"
+                  endingLineNumber = "5">
+               </Location>
+               <Location
+                  uuid = "47886937-F2B5-4DD3-9579-6D64F019362B - 5f1ded86e7a651fa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Mind.MoodCheckinView.init() -&gt; Mind.MoodCheckinView"
+                  moduleName = "Mind.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/alexgrim/hackios/Mind/Mind/Views/MoodCheckin/MoodCheckinView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "5"
+                  endingLineNumber = "5">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

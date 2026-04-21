@@ -118,9 +118,28 @@ enum Theme {
     static var ambientBackground: some View {
         ZStack {
             appBackground.ignoresSafeArea()
+            
+            // Elementos inmersivos zen
+            ZStack {
+                ZenCloud()
+                    .offset(y: -250)
+                ZenCloud()
+                    .offset(x: 150, y: -180)
+                
+                VStack {
+                    Spacer()
+                    HStack {
+                        BambooGrove()
+                            .opacity(0.4)
+                        Spacer()
+                    }
+                }
+            }
+            .allowsHitTesting(false)
+
             // Viñeta superior fría (niebla)
             RadialGradient(
-                colors: [asagi.opacity(0.2), .clear],
+                colors: [asagi.opacity(0.15), .clear],
                 center: .topLeading,
                 startRadius: 10,
                 endRadius: 420
@@ -128,7 +147,7 @@ enum Theme {
             .ignoresSafeArea()
             // Toque tierra/ámbar en la esquina inferior
             RadialGradient(
-                colors: [kohaku.opacity(0.15), .clear],
+                colors: [kohaku.opacity(0.12), .clear],
                 center: .bottomTrailing,
                 startRadius: 10,
                 endRadius: 420
@@ -137,7 +156,7 @@ enum Theme {
             // Grano sutil de papel
             WashiNoise()
                 .blendMode(.multiply)
-                .opacity(0.10)
+                .opacity(0.08)
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
         }

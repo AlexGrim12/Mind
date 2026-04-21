@@ -15,90 +15,90 @@ struct MoodCheckinView: View {
 
     var body: some View {
         ZStack {
-            Theme.scrollPaper.ignoresSafeArea()
+            Theme.ambientBackground.ignoresSafeArea()
             
-            WashiNoise()
-                .blendMode(.multiply)
-                .opacity(0.12)
-                .ignoresSafeArea()
-
             VStack(spacing: 0) {
-                VStack(spacing: 0) {
-                    // Header
-                    HStack {
-                        Button("Cancelar") { dismiss() }
-                            .font(.subheadline).foregroundStyle(Theme.sumiSoft)
-                        Spacer()
-                        Text("Check-in")
-                            .font(.headline.bold()).foregroundStyle(Theme.sumi)
-                        Spacer()
-                        Text("Cancelar").font(.subheadline).opacity(0)
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 10)
-
-                    // Progress dots
-                    HStack(spacing: 8) {
-                        ForEach(0..<3) { i in
-                            Capsule()
-                                .fill(Theme.sumi.opacity(i <= step ? 0.8 : 0.2))
-                                .frame(width: i == step ? 28 : 8, height: 8)
-                                .animation(.springy, value: step)
-                        }
-                    }
-                    .padding(.top, 16)
-
-                    // Contenido
-                    ZStack {
-                        if step == 0 {
-                            ScoreStep(score: $score)
-                                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                                        removal: .move(edge: .leading).combined(with: .opacity)))
-                        } else if step == 1 {
-                            ContextStep(energy: $energy, selectedContext: $selectedContext,
-                                        selectedCompany: $selectedCompany, selectedActivity: $selectedActivity)
-                                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                                        removal: .move(edge: .leading).combined(with: .opacity)))
-                        } else {
-                            ConfirmStep(score: score, energy: energy, context: selectedContext,
-                                        company: selectedCompany, activity: selectedActivity,
-                                        saved: savedSuccessfully)
-                                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                                        removal: .move(edge: .leading).combined(with: .opacity)))
-                        }
-                    }
-                    .animation(.springy, value: step)
-
+                // Header
+                HStack {
+                    Button("Cerrar") { dismiss() }
+                        .font(.system(.subheadline, design: .serif))
+                        .foregroundStyle(Theme.sumiSoft)
                     Spacer()
-
-                    // Botones
-                    VStack(spacing: 12) {
-                        Button {
-                            if step < 2 {
-                                Haptics.impact(.light)
-                                withAnimation(.springy) { step += 1 }
-                            } else {
-                                save()
-                            }
-                        } label: {
-                            Text(step == 0 ? "Siguiente" : step == 1 ? "Ver resumen" : "Guardar")
-                                .primaryButton()
-                        }
-                        .pressEffect()
-                        .padding(.horizontal, 24)
-
-                        if step > 0 {
-                            Button("Atrás") {
-                                Haptics.impact(.light)
-                                withAnimation(.springy) { step -= 1 }
-                            }
-                            .font(.subheadline)
-                            .foregroundStyle(Theme.sumiSoft)
-                            .transition(.opacity)
-                        }
-                    }
-                    .padding(.bottom, 20)
+                    Text("Auto-reflexión")
+                        .font(.system(.headline, design: .serif))
+                        .foregroundStyle(Theme.sumi)
+                    Spacer()
+                    Text("Cerrar").opacity(0)
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+
+                // Progress dots (Zen style)
+                HStack(spacing: 12) {
+                    ForEach(0..<3) { i in
+                        Circle()
+                            .fill(i <= step ? Theme.ai : Theme.sumi.opacity(0.1))
+                            .frame(width: 6, height: 6)
+                            .overlay(
+                                Circle()
+                                    .stroke(Theme.ai.opacity(0.3), lineWidth: i == step ? 4 : 0)
+                                    .scaleEffect(i == step ? 1.5 : 1)
+                            )
+                            .animation(.springy, value: step)
+                    }
+                }
+                .padding(.top, 16)
+
+                // Contenido
+                ZStack {
+                    if step == 0 {
+                        ScoreStep(score: $score)
+                            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
+                                                    removal: .move(edge: .leading).combined(with: .opacity)))
+                    } else if step == 1 {
+                        ContextStep(energy: $energy, selectedContext: $selectedContext,
+                                    selectedCompany: $selectedCompany, selectedActivity: $selectedActivity)
+                            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
+                                                    removal: .move(edge: .leading).combined(with: .opacity)))
+                    } else {
+                        ConfirmStep(score: score, energy: energy, context: selectedContext,
+                                    company: selectedCompany, activity: selectedActivity,
+                                    saved: savedSuccessfully)
+                            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
+                                                    removal: .move(edge: .leading).combined(with: .opacity)))
+                    }
+                }
+                .animation(.springy, value: step)
+
+                Spacer()
+
+                // Botones
+                VStack(spacing: 16) {
+                    Button {
+                        if step < 2 {
+                            Haptics.impact(.light)
+                            withAnimation(.springy) { step += 1 }
+                        } else {
+                            save()
+                        }
+                    } label: {
+                        Text(step == 0 ? "Continuar" : step == 1 ? "Revisar" : "Guardar")
+                            .primaryButton()
+                    }
+                    .pressEffect()
+                    .padding(.horizontal, 30)
+
+                    if step > 0 {
+                        Button("Volver") {
+                            Haptics.impact(.light)
+                            withAnimation(.springy) { step -= 1 }
+                        }
+                        .font(.system(.subheadline, design: .serif))
+                        .foregroundStyle(Theme.sumiSoft)
+                        .transition(.opacity)
+                    }
+                }
+                .padding(.bottom, 30)
             }
         }
     }
@@ -109,61 +109,65 @@ struct MoodCheckinView: View {
         let entry = MoodEntry(score: score, energy: energy, context: selectedContext,
                               company: selectedCompany, activity: selectedActivity)
         context.insert(entry)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { dismiss() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { dismiss() }
     }
 }
 
-// MARK: — Step 1: Selector de score
+// MARK: — Step 1: Selector de score (Zen)
 
 struct ScoreStep: View {
     @Binding var score: Int
     @State private var appeared = false
 
     var body: some View {
-        VStack(spacing: 28) {
+        VStack(spacing: 32) {
             Spacer()
 
-            // Emoji + label
-            VStack(spacing: 10) {
-                Text(score.moodEmoji)
-                    .font(.system(size: 80))
-                    .shadow(radius: 8)
-                    .scaleEffect(appeared ? 1 : 0.4)
-                    .animation(.bouncy.delay(0.1), value: appeared)
-                    .contentTransition(.numericText())
-                    .animation(.spring(duration: 0.6, bounce: 0.5), value: score)
+            // Kanji + label
+            VStack(spacing: 16) {
+                ZStack {
+                    EnsoCircle(color: score.moodColor, lineWidth: 3)
+                        .frame(width: 140, height: 140)
+                        .rotationEffect(.degrees(Double(score) * 10))
+                        .animation(.spring(duration: 0.8), value: score)
+                    
+                    Text(score.moodKanji)
+                        .font(.system(size: 80, weight: .black, design: .serif))
+                        .foregroundStyle(Theme.sumi)
+                        .shadow(color: score.moodColor.opacity(0.2), radius: 10)
+                        .scaleEffect(appeared ? 1 : 0.4)
+                        .animation(.bouncy.delay(0.1), value: appeared)
+                }
 
-                Text(score.moodLabel)
-                    .font(.title.bold())
-                    .foregroundStyle(.white)
-                    .contentTransition(.numericText())
-                    .animation(.smooth, value: score)
-
-                Text("¿Cómo te sientes ahora mismo?")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.75))
-                    .opacity(appeared ? 1 : 0)
-                    .animation(.smooth.delay(0.2), value: appeared)
+                VStack(spacing: 4) {
+                    Text(score.moodLabel)
+                        .font(.system(.title, design: .serif).weight(.bold))
+                        .foregroundStyle(Theme.sumi)
+                    
+                    Text("¿Cómo está tu mente en este momento?")
+                        .font(.system(.subheadline, design: .serif))
+                        .foregroundStyle(Theme.sumiSoft)
+                }
+                .opacity(appeared ? 1 : 0)
+                .animation(.smooth.delay(0.2), value: appeared)
             }
 
-            // Score bubbles con stagger
-            VStack(spacing: 14) {
-                HStack(spacing: 10) {
+            // Score bubbles (Zen stones)
+            VStack(spacing: 16) {
+                HStack(spacing: 12) {
                     ForEach(0...5, id: \.self) { i in
-                        ScoreBubble(value: i, selected: score == i) {
+                        ZenStoneBubble(value: i, selected: score == i) {
                             Haptics.selection()
                             withAnimation(.springy) { score = i }
                         }
-                        .staggered(i, base: 0.05)
                     }
                 }
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     ForEach(6...10, id: \.self) { i in
-                        ScoreBubble(value: i, selected: score == i) {
+                        ZenStoneBubble(value: i, selected: score == i) {
                             Haptics.selection()
                             withAnimation(.springy) { score = i }
                         }
-                        .staggered(i - 6, base: 0.12)
                     }
                 }
             }
@@ -175,7 +179,7 @@ struct ScoreStep: View {
     }
 }
 
-struct ScoreBubble: View {
+struct ZenStoneBubble: View {
     let value: Int
     let selected: Bool
     let action: () -> Void
@@ -184,29 +188,20 @@ struct ScoreBubble: View {
         Button(action: action) {
             ZStack {
                 Circle()
-                    .fill(selected ? .white : .white.opacity(0.18))
-                    .frame(width: selected ? 54 : 44, height: selected ? 54 : 44)
-                    .shadow(color: selected ? .black.opacity(0.15) : .clear, radius: 6, y: 3)
-
-                if selected {
-                    Circle()
-                        .stroke(.white.opacity(0.6), lineWidth: 2)
-                        .frame(width: 62, height: 62)
-                        .scaleEffect(selected ? 1 : 0.8)
-                        .opacity(selected ? 1 : 0)
-                        .animation(.springy, value: selected)
-                }
+                    .fill(selected ? value.moodColor : Theme.kinari.opacity(0.5))
+                    .frame(width: selected ? 50 : 40, height: selected ? 50 : 40)
+                    .shadow(color: Theme.sumi.opacity(selected ? 0.2 : 0.05), radius: 5, y: 2)
 
                 Text("\(value)")
-                    .font(.system(size: selected ? 20 : 15, weight: .bold))
-                    .foregroundStyle(selected ? value.moodColor : .white)
+                    .font(.system(size: selected ? 18 : 14, weight: .bold, design: .serif))
+                    .foregroundStyle(selected ? .white : Theme.sumiSoft)
             }
             .animation(.springy, value: selected)
         }
     }
 }
 
-// MARK: — Step 2: Energía y contexto
+// MARK: — Step 2: Energía y contexto (Estilo Washi)
 
 struct ContextStep: View {
     @Binding var energy: Double
@@ -216,69 +211,63 @@ struct ContextStep: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 18) {
-                Spacer(minLength: 8)
-                Text("Un poco de contexto")
-                    .font(.title2.bold()).foregroundStyle(.white)
+            VStack(spacing: 28) {
+                Spacer(minLength: 10)
+                
+                ToriiHeader(title: "Contexto", subtitle: "Define tu entorno actual")
 
                 // Energy
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        Text("Energía").font(.headline).foregroundStyle(.white)
+                        Text("Energía Vital").font(.system(.headline, design: .serif)).foregroundStyle(Theme.sumi)
                         Spacer()
                         Text("\(Int(energy * 100))%")
-                            .font(.headline.bold()).foregroundStyle(.white)
-                            .contentTransition(.numericText())
-                            .animation(.smooth, value: energy)
+                            .font(.system(.headline, design: .serif).weight(.bold))
+                            .foregroundStyle(Theme.ai)
                     }
-                    HStack(spacing: 12) {
-                        Text("😴").font(.title3)
+                    
+                    HStack(spacing: 16) {
+                        Text("静").font(.caption).foregroundStyle(Theme.sumiSoft) // Quiet
                         Slider(value: $energy)
-                            .tint(.white)
-                            .onChange(of: energy) { _, _ in Haptics.selection() }
-                        Text("⚡️").font(.title3)
+                            .tint(Theme.ai)
+                        Text("動").font(.caption).foregroundStyle(Theme.sumiSoft) // Action
                     }
                 }
-                .padding(18)
-                .background(.white.opacity(0.15))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .cardStyle()
                 .padding(.horizontal, 24)
-                .staggered(0, base: 0.05)
 
-                WhiteChipGroup(title: "¿Dónde?", items: MoodContext.allCases, selected: $selectedContext) {
+                ZenChipGroup(title: "¿Dónde estás?", items: MoodContext.allCases, selected: $selectedContext) {
                     ($0.icon, $0.rawValue)
                 }
                 .padding(.horizontal, 24)
-                .staggered(1, base: 0.05)
 
-                WhiteChipGroup(title: "¿Con quién?", items: MoodCompany.allCases, selected: $selectedCompany) {
+                ZenChipGroup(title: "¿Quién te acompaña?", items: MoodCompany.allCases, selected: $selectedCompany) {
                     ($0.icon, $0.rawValue)
                 }
                 .padding(.horizontal, 24)
-                .staggered(2, base: 0.05)
 
-                WhiteChipGroup(title: "¿Qué haces?", items: MoodActivity.allCases, selected: $selectedActivity) {
+                ZenChipGroup(title: "¿Qué actividad realizas?", items: MoodActivity.allCases, selected: $selectedActivity) {
                     ($0.icon, $0.rawValue)
                 }
                 .padding(.horizontal, 24)
-                .staggered(3, base: 0.05)
 
-                Spacer(minLength: 20)
+                Spacer(minLength: 30)
             }
         }
     }
 }
 
-struct WhiteChipGroup<T: Hashable & CaseIterable>: View {
+struct ZenChipGroup<T: Hashable & CaseIterable>: View {
     let title: String
     let items: [T]
     @Binding var selected: T
     let label: (T) -> (String, String)
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(.headline).foregroundStyle(.white)
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title).font(.system(.subheadline, design: .serif).weight(.semibold)).foregroundStyle(Theme.sumiSoft)
+            
+            FlowLayout(spacing: 10) {
                 ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                     let (icon, text) = label(item)
                     let isSelected = item == selected
@@ -286,16 +275,15 @@ struct WhiteChipGroup<T: Hashable & CaseIterable>: View {
                         Haptics.selection()
                         withAnimation(.springy) { selected = item }
                     } label: {
-                        HStack(spacing: 6) {
+                        HStack(spacing: 8) {
                             Image(systemName: icon).font(.caption)
-                            Text(text).font(.subheadline)
+                            Text(text).font(.system(.subheadline, design: .serif))
                         }
-                        .foregroundStyle(isSelected ? Theme.accent : .white)
-                        .padding(.horizontal, 14).padding(.vertical, 9)
-                        .background(isSelected ? .white : .white.opacity(0.2))
+                        .foregroundStyle(isSelected ? .white : Theme.sumi)
+                        .padding(.horizontal, 16).padding(.vertical, 10)
+                        .background(isSelected ? Theme.ai : Theme.kinari.opacity(0.4))
                         .clipShape(Capsule())
-                        .scaleEffect(isSelected ? 1.05 : 1)
-                        .animation(.springy, value: isSelected)
+                        .overlay(Capsule().stroke(Theme.inkLine, lineWidth: isSelected ? 0 : 0.5))
                     }
                 }
             }
@@ -303,7 +291,7 @@ struct WhiteChipGroup<T: Hashable & CaseIterable>: View {
     }
 }
 
-// MARK: — Step 3: Confirmación
+// MARK: — Step 3: Confirmación (Pergamino)
 
 struct ConfirmStep: View {
     let score: Int
@@ -313,71 +301,56 @@ struct ConfirmStep: View {
     let activity: MoodActivity
     let saved: Bool
 
-    @State private var checkScale: CGFloat = 0
-    @State private var rowsVisible = false
-
     var body: some View {
-        VStack(spacing: 28) {
+        VStack(spacing: 32) {
             Spacer()
 
-            // Check / guardado
             ZStack {
-                Circle()
-                    .fill(.white.opacity(0.15))
-                    .frame(width: 100, height: 100)
+                HankoStamp(kanji: "認", color: Theme.aka, size: 100) // "Aprobado/Confirmado"
                     .scaleEffect(saved ? 1.2 : 1)
-                    .opacity(saved ? 0 : 1)
-                    .animation(.easeOut(duration: 0.5), value: saved)
-
-                Image(systemName: saved ? "checkmark.circle.fill" : "checkmark.circle")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.white)
-                    .scaleEffect(checkScale)
-                    .animation(.bouncy, value: checkScale)
-                    .symbolEffect(.bounce, value: saved)
+                    .opacity(saved ? 0.2 : 0.8)
+                
+                if saved {
+                    FloatingSparkles()
+                        .frame(width: 150, height: 150)
+                }
             }
 
-            VStack(spacing: 8) {
-                Text(saved ? "¡Guardado!" : "Todo listo")
-                    .font(.title.bold()).foregroundStyle(.white)
-                    .contentTransition(.numericText())
-                    .animation(.smooth, value: saved)
-                Text("Solo en tu iPhone · nadie más lo ve")
-                    .font(.subheadline).foregroundStyle(.white.opacity(0.75))
+            VStack(spacing: 12) {
+                Text(saved ? "Registrado" : "Revisión")
+                    .font(.system(.title2, design: .serif).weight(.bold))
+                    .foregroundStyle(Theme.sumi)
+                
+                Text("Tu estado se guardará en tu bitácora personal")
+                    .font(.system(.subheadline, design: .serif))
+                    .foregroundStyle(Theme.sumiSoft)
             }
 
-            // Resumen
-            VStack(spacing: 14) {
-                ConfirmRow(icon: "face.smiling", text: "\(score)/10 · \(score.moodLabel)")
-                ConfirmRow(icon: "bolt", text: "Energía \(Int(energy * 100))%")
-                ConfirmRow(icon: context.icon, text: context.rawValue)
-                ConfirmRow(icon: company.icon, text: company.rawValue)
-                ConfirmRow(icon: activity.icon, text: activity.rawValue)
+            VStack(spacing: 16) {
+                ConfirmRowZen(icon: "face.smiling", title: "Ánimo", value: score.moodLabel)
+                ConfirmRowZen(icon: "bolt", title: "Energía", value: "\(Int(energy * 100))%")
+                ConfirmRowZen(icon: context.icon, title: "Lugar", value: context.rawValue)
+                ConfirmRowZen(icon: company.icon, title: "Compañía", value: company.rawValue)
             }
-            .padding(20)
-            .background(.white.opacity(rowsVisible ? 0.15 : 0))
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .cardStyle()
             .padding(.horizontal, 32)
-            .animation(.springy.delay(0.1), value: rowsVisible)
 
             Spacer()
-        }
-        .onAppear {
-            withAnimation(.bouncy.delay(0.15)) { checkScale = 1 }
-            withAnimation(.springy.delay(0.2)) { rowsVisible = true }
         }
     }
 }
 
-struct ConfirmRow: View {
+struct ConfirmRowZen: View {
     let icon: String
-    let text: String
+    let title: String
+    let value: String
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: icon).foregroundStyle(.white.opacity(0.9)).frame(width: 24)
-            Text(text).font(.subheadline).foregroundStyle(.white)
+            Image(systemName: icon).foregroundStyle(Theme.sumiSoft).frame(width: 20)
+            Text(title).font(.system(.caption, design: .serif)).foregroundStyle(Theme.sumiSoft)
             Spacer()
+            Text(value).font(.system(.subheadline, design: .serif).weight(.semibold)).foregroundStyle(Theme.sumi)
         }
     }
 }

@@ -391,29 +391,6 @@ struct ScoreCard: View {
     }
 }
 
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) -> CGSize {
-        let w = proposal.width ?? .infinity
-        var h: CGFloat = 0; var rowW: CGFloat = 0; var rowH: CGFloat = 0
-        for v in subviews {
-            let s = v.sizeThatFits(.unspecified)
-            if rowW + s.width > w { h += rowH + spacing; rowW = 0; rowH = 0 }
-            rowW += s.width + spacing; rowH = max(rowH, s.height)
-        }
-        return CGSize(width: w, height: h + rowH)
-    }
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) {
-        var x = bounds.minX; var y = bounds.minY; var rowH: CGFloat = 0
-        for v in subviews {
-            let s = v.sizeThatFits(.unspecified)
-            if x + s.width > bounds.maxX { y += rowH + spacing; x = bounds.minX; rowH = 0 }
-            v.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(s))
-            x += s.width + spacing; rowH = max(rowH, s.height)
-        }
-    }
-}
-
 enum StudentStatus: Equatable {
     case good, warning, crisis
     var color: Color {

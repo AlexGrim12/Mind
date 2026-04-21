@@ -59,34 +59,59 @@ struct MainTabView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            Theme.ambientBackground
+            Theme.ambientBackground.ignoresSafeArea()
 
             TabView(selection: $selectedTab) {
                 HomeView()
-                    .tabItem { Label("Hoy", systemImage: selectedTab == 0 ? "sun.max.fill" : "sun.max") }
+                    .tabItem { 
+                        VStack {
+                            Image(systemName: selectedTab == 0 ? "sun.max.fill" : "sun.max")
+                            Text("Hoy · 今日") 
+                        }
+                    }
                     .tag(0)
 
                 TrendsView()
-                    .tabItem { Label("Tendencia", systemImage: "chart.line.uptrend.xyaxis") }
+                    .tabItem { 
+                        VStack {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                            Text("Camino · 経") 
+                        }
+                    }
                     .tag(1)
 
                 WellnessView()
-                    .tabItem { Label("Bienestar", systemImage: selectedTab == 2 ? "heart.text.clipboard.fill" : "heart.text.clipboard") }
+                    .tabItem { 
+                        VStack {
+                            Image(systemName: selectedTab == 2 ? "heart.text.clipboard.fill" : "heart.text.clipboard")
+                            Text("Salud · 康") 
+                        }
+                    }
                     .tag(2)
 
                 AppointmentsView()
-                    .tabItem { Label("Citas", systemImage: selectedTab == 3 ? "calendar.badge.clock" : "calendar") }
+                    .tabItem { 
+                        VStack {
+                            Image(systemName: selectedTab == 3 ? "calendar.badge.clock" : "calendar")
+                            Text("Citas · 会") 
+                        }
+                    }
                     .tag(3)
 
                 ClinicianView()
-                    .tabItem { Label("Psicólogo", systemImage: "person.badge.shield.checkmark") }
+                    .tabItem { 
+                        VStack {
+                            Image(systemName: "person.badge.shield.checkmark")
+                            Text("Apoyo · 師") 
+                        }
+                    }
                     .tag(4)
             }
-            .tint(Theme.accent)
+            .tint(Theme.ai)
             .toolbarBackground(.visible, for: .tabBar)
             .toolbarBackground(.ultraThinMaterial, for: .tabBar)
 
-            // Floating SOS button
+            // Floating SOS button (Estilo Sello Hanko de Emergencia)
             Button {
                 Haptics.warning()
                 sosPressed = true
@@ -94,30 +119,33 @@ struct MainTabView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { sosPressed = false }
             } label: {
                 HStack(spacing: 8) {
-                    Image(systemName: "sos.circle.fill")
-                        .font(.system(size: 17, weight: .bold))
-                        .symbolEffect(.pulse.byLayer, options: .repeating)
+                    Text("急") // "Emergency / Urgent"
+                        .font(.system(size: 20, weight: .black, design: .serif))
                     Text("Ayuda")
-                        .font(.subheadline.weight(.semibold))
+                        .font(.system(.subheadline, design: .serif).weight(.bold))
+                        .tracking(1)
                 }
                 .foregroundStyle(.white)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
                 .background(
                     LinearGradient(
-                        colors: [Theme.crisisRed.opacity(0.92), Theme.crisisRed],
+                        colors: [Theme.aka, Theme.aka.opacity(0.8)],
                         startPoint: .top,
                         endPoint: .bottom
                     ),
-                    in: Capsule()
+                    in: RoundedRectangle(cornerRadius: 16, style: .continuous)
                 )
-                .overlay(Capsule().stroke(.white.opacity(0.2), lineWidth: 1))
-                .shadow(color: Theme.crisisRed.opacity(0.44), radius: 16, x: 0, y: 8)
-                .scaleEffect(sosPressed ? 0.95 : 1)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(.white.opacity(0.35), lineWidth: 1.2)
+                )
+                .shadow(color: Theme.aka.opacity(0.4), radius: 12, x: 0, y: 6)
+                .scaleEffect(sosPressed ? 0.92 : 1)
                 .animation(.springy, value: sosPressed)
             }
             .padding(.trailing, 20)
-            .padding(.bottom, 90)
+            .padding(.bottom, 100)
         }
         .sheet(isPresented: $showCrisis) {
             SafetyPlanView()
