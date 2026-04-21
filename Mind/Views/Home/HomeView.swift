@@ -451,7 +451,7 @@ struct HomeSleepCard: View {
 }
 
 struct WatchBridgeHubCard: View {
-    @ObservedObject var service: WatchConnectivityService
+    var service: WatchConnectivityService
     var body: some View {
         HStack(spacing: 16) {
             ZStack {

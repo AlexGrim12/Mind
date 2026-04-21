@@ -1,18 +1,20 @@
 import Foundation
 import Combine
+import Observation
 import WatchConnectivity
 import WatchKit
 
-final class WatchStore: NSObject, ObservableObject {
-    @Published var streak = 0
-    @Published var avgMood: Double = 0
-    @Published var todayDone = false
-    @Published var nextApptDate: Date? = nil
-    @Published var nextApptClinician: String? = nil
-    @Published var isSending = false
-    @Published var lastSentScore: Int? = nil
-    @Published var remoteCheckinRequestAt: Date? = nil
-    @Published var lastPhoneContextSyncAt: Date? = nil
+@Observable
+final class WatchStore: NSObject {
+    var streak = 0
+    var avgMood: Double = 0
+    var todayDone = false
+    var nextApptDate: Date? = nil
+    var nextApptClinician: String? = nil
+    var isSending = false
+    var lastSentScore: Int? = nil
+    var remoteCheckinRequestAt: Date? = nil
+    var lastPhoneContextSyncAt: Date? = nil
 
     private var latestBiometricPayload: [String: Any] = [:]
 

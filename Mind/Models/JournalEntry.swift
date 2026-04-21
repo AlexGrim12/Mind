@@ -7,8 +7,26 @@ final class JournalEntry {
     var date: Date
     var prompt: String
     var body: String
-    var aiSummary: String?       // generado on-device por LLM, visible solo para el estudiante
-    var sharedTopics: [String]   // temas anonimizados enviados al profesional (si consentimiento activo)
+
+    /// Resumen generado on-device (Apple Foundation Models) visible solo para el autor.
+    var aiSummary: String?
+    /// Emoción/estado principal detectado (opcional, para badges).
+    var aiMood: String?
+    /// Fecha de generación del resumen (para saber si está al día).
+    var aiSummaryDate: Date?
+
+    /// Nombre de archivo de la nota de audio (sin ruta), dentro de Documents/Journal/Audio/
+    var audioFileName: String?
+    /// Transcripción generada por Apple Speech (on-device).
+    var audioTranscript: String?
+    /// Duración en segundos del audio original.
+    var audioDuration: Double?
+
+    /// Nombres de archivos de imágenes adjuntas, en Documents/Journal/Images/
+    var imageFileNames: [String]?
+
+    /// Temas anonimizados enviados al profesional (si consentimiento activo).
+    var sharedTopics: [String]?
     var isSharedWithClinician: Bool
 
     init(prompt: String, body: String) {
@@ -17,8 +35,67 @@ final class JournalEntry {
         self.prompt = prompt
         self.body = body
         self.aiSummary = nil
+        self.aiMood = nil
+        self.aiSummaryDate = nil
+        self.audioFileName = nil
+        self.audioTranscript = nil
+        self.audioDuration = nil
+        self.imageFileNames = []
         self.sharedTopics = []
         self.isSharedWithClinician = false
+    }
+
+    // MARK: — Helpers de presentación
+
+    /// Texto efectivo (combina cuerpo escrito + transcripción de audio si existe).
+    var combinedText: String {
+        let t = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        let a = (audioTranscript ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        switch (t.isEmpty, a.isEmpty) {
+        case (false, false): return "\(t)\n\n🎙️ \(a)"
+        case (false, true):  return t
+        case (true, false):  return a
+        default:             return ""
+        }
+    }
+
+    /// ¿La nota tiene algún contenido?
+    var hasContent: Bool {
+        !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        || audioFileName != nil
+        || !(imageFileNames ?? []).isEmpty
+    }
+
+    /// Vista previa breve para listas.
+    var preview: String {
+        let source = combinedText.replacingOccurrences(of: "\n", with: " ")
+        if source.isEmpty {
+            if audioFileName != nil { return "Nota de voz · sin transcripción" }
+            if !(imageFileNames ?? []).isEmpty { return "\(imageFileNames?.count ?? 0) imagen(es)" }
+            return "Entrada vacía"
+        }
+        return String(source.prefix(140))
+    }
+
+    /// Fecha legible (corta) para listas.
+    var shortDate: String {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "es_ES")
+        df.dateFormat = "d MMM · HH:mm"
+        return df.string(from: date)
+    }
+
+    /// Kanji del mes (decorativo).
+    var monthKanji: String {
+        let month = Calendar.current.component(.month, from: date)
+        let kanji = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"]
+        return kanji[(month - 1).clamped(to: 0...11)]
+    }
+}
+
+private extension Comparable {
+    func clamped(to range: ClosedRange<Self>) -> Self {
+        min(max(self, range.lowerBound), range.upperBound)
     }
 }
 

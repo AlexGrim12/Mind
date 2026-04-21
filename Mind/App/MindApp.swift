@@ -5,7 +5,7 @@ import UIKit
 @main
 struct MindApp: App {
     let container: ModelContainer
-    @StateObject private var watchService = WatchConnectivityService.shared
+    @State private var watchService = WatchConnectivityService.shared
 
     init() {
         Self.configureSystemAppearance()

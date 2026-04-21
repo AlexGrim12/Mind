@@ -364,6 +364,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Mind lee tus datos de sueño para correlacionarlos con tu estado de ánimo.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Mind no escribe datos de salud.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Mind usa el micrófono para grabar tus notas de voz en el diario. El audio se guarda solo en tu dispositivo.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Mind transcribe tus notas de voz del diario a texto en tu propio dispositivo. La transcripción nunca sale de tu iPhone.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Mind usa tus imágenes para adjuntarlas a las entradas del diario, que se guardan solo en tu dispositivo.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -399,6 +402,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Mind lee tus datos de sueño para correlacionarlos con tu estado de ánimo.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Mind no escribe datos de salud.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Mind usa el micrófono para grabar tus notas de voz en el diario. El audio se guarda solo en tu dispositivo.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Mind transcribe tus notas de voz del diario a texto en tu propio dispositivo. La transcripción nunca sale de tu iPhone.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Mind usa tus imágenes para adjuntarlas a las entradas del diario, que se guardan solo en tu dispositivo.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

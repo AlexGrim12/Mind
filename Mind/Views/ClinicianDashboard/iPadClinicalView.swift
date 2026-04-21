@@ -195,7 +195,7 @@ struct iPadPatientListZenView: View {
                             HStack(spacing: 16) {
                                 ZStack {
                                     EnsoCircle(color: Theme.ai, lineWidth: 1).frame(width: 44, height: 44)
-                                    Text(patient.name.prefix(1)).font(.headline.serif).foregroundStyle(Theme.sumi)
+                                    Text(patient.name.prefix(1)).font(.system(.headline, design: .serif)).foregroundStyle(Theme.sumi)
                                 }
                                 
                                 VStack(alignment: .leading) {

@@ -32,7 +32,7 @@ struct PatientSettingsView: View {
                                     .font(.system(size: 24, weight: .bold, design: .serif))
                                     .foregroundStyle(Theme.textPrimary)
                                 
-                                Text("Estudiante · UANL")
+                                Text("Estudiante · FI - UNAM")
                                     .font(.system(.subheadline, design: .serif))
                                     .foregroundStyle(Theme.secondaryText)
                             }
@@ -113,7 +113,7 @@ struct PatientSettingsView: View {
                         
                         Spacer(minLength: 40)
                         
-                        Text("MIND-LINK · Proyecto de Bienestar UANL\n2026 · Monterrey, México")
+                        Text("MIND-LINK · Proyecto de Bienestar FI - UNAM\n2026 · Monterrey, México")
                             .font(.system(.caption2, design: .serif))
                             .foregroundStyle(Theme.sumiSoft.opacity(0.6))
                             .multilineTextAlignment(.center)

@@ -270,7 +270,7 @@ struct DoctorSettingsTab: View {
                     Divider().background(Theme.inkLine).padding(.leading, 50)
                     SettingZenRow(icon: "shield.checkered", title: "Seguridad", value: "Activa")
                     Divider().background(Theme.inkLine).padding(.leading, 50)
-                    SettingZenRow(icon: "heart.text.clipboard", title: "Institución", value: "UANL")
+                    SettingZenRow(icon: "heart.text.clipboard", title: "Institución", value: "FI - UNAM")
                 }
                 .cardStyle()
 
@@ -278,7 +278,7 @@ struct DoctorSettingsTab: View {
                 Button(action: { showLogoutAlert = true }) {
                     HStack {
                         Image(systemName: "power")
-                        Text("Cerrar Sesión Ceremonial")
+                        Text("Cerrar Sesión")
                             .font(.system(.subheadline, design: .serif).bold())
                     }
                     .foregroundStyle(Theme.aka)

@@ -2,8 +2,8 @@ import SwiftUI
 import Foundation
 
 struct WatchHomeView: View {
-    @EnvironmentObject private var store: WatchStore
-    @StateObject private var health = WatchHealthService()
+    @Environment(WatchStore.self) private var store
+    @State private var health = WatchHealthService()
     @State private var showCheckin = false
     @State private var showBreathing = false
     @State private var showRemotePrompt = false
@@ -137,7 +137,7 @@ struct WatchHomeView: View {
             }
             .navigationTitle("")
             .sheet(isPresented: $showCheckin) {
-                WatchMoodCheckinView().environmentObject(store)
+                WatchMoodCheckinView().environment(store)
             }
             .sheet(isPresented: $showBreathing) {
                 WatchBreathingView()
@@ -181,7 +181,7 @@ struct WatchHomeView: View {
 }
 
 struct SyncStatusCard: View {
-    @ObservedObject var store: WatchStore
+    var store: WatchStore
 
     var body: some View {
         HStack(spacing: 8) {
@@ -215,7 +215,7 @@ struct SyncStatusCard: View {
 // MARK: — Live stress bar
 
 struct LiveStressBar: View {
-    @ObservedObject var health: WatchHealthService
+    var health: WatchHealthService
     @State private var pulse = false
 
     private var stressColor: Color {
@@ -273,7 +273,7 @@ struct LiveStressBar: View {
 // MARK: — Sensor mini grid
 
 struct SensorMiniGrid: View {
-    @ObservedObject var health: WatchHealthService
+    var health: WatchHealthService
 
     var body: some View {
         HStack(spacing: 8) {

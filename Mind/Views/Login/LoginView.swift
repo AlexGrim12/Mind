@@ -124,7 +124,7 @@ struct LoginView: View {
                             .font(.system(.caption2, design: .serif))
                             .foregroundStyle(Theme.sumiSoft)
                     }
-                    Text("UANL · MIND-LINK v1.0")
+                    Text("FI - UNAM · MIND-LINK v1.0")
                         .font(.system(.caption2, design: .serif))
                         .foregroundStyle(Theme.sumiSoft.opacity(0.6))
                 }

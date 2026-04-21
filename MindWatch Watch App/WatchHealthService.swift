@@ -1,17 +1,19 @@
 import Foundation
 import HealthKit
 import Combine
+import Observation
 
 @MainActor
-final class WatchHealthService: ObservableObject {
+@Observable
+final class WatchHealthService {
     private let store = HKHealthStore()
 
-    @Published var heartRate: Double? = nil
-    @Published var hrv: Double? = nil
-    @Published var oxygenSaturation: Double? = nil
-    @Published var steps: Int = 0
-    @Published var stressLevel: StressLevel = .unknown
-    @Published var isAuthorized = false
+    var heartRate: Double? = nil
+    var hrv: Double? = nil
+    var oxygenSaturation: Double? = nil
+    var steps: Int = 0
+    var stressLevel: StressLevel = .unknown
+    var isAuthorized = false
 
     private let readTypes: Set<HKObjectType> = [
         HKObjectType.quantityType(forIdentifier: .heartRate)!,

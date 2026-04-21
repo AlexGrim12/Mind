@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WatchMoodCheckinView: View {
-    @EnvironmentObject private var store: WatchStore
+    @Environment(WatchStore.self) private var store
     @Environment(\.dismiss) private var dismiss
 
     @State private var score = 5

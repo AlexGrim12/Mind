@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WatchBiometricsView: View {
-    @StateObject private var health = WatchHealthService()
+    @State private var health = WatchHealthService()
     @State private var appeared = false
 
     var body: some View {
